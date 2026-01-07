@@ -47,7 +47,7 @@ def t_src_dest_combinations(fix):
 
 def register(tests):
     tests.register_batch(
-        "/blk-archive/unit",
+        "/blk-stash/unit",
         [
             ("combinations", t_src_dest_combinations),
         ],

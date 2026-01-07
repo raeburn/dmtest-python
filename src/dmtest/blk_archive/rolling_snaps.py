@@ -75,7 +75,7 @@ def t_rolling_snaps(fix):
 
 def register(tests):
     tests.register_batch(
-        "/blk-archive/",
+        "/blk-stash/",
         [
             ("rolling-snaps", t_rolling_snaps, reg.check_linux_repo),
         ],
