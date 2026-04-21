@@ -338,6 +338,10 @@ targets = [ "cache", "linear",]
 executables = [ "blockdev", "cache_check", "cache_restore", "dmsetup",]
 targets = [ "cache", "linear",]
 
+["/vdo/compress_01/basic"]
+executables = [ "blkdiscard", "blockdev", "dmsetup", "vdoformat",]
+targets = [ "vdo",]
+
 ["/vdo/basic/basic01"]
 executables = [ "bash", "blockdev", "cat", "cp", "dmsetup", "echo", "fsck.ext4", "mkdir", "mkfs.ext4", "mount", "umount", "vdoformat",]
 targets = [ "vdo",]
