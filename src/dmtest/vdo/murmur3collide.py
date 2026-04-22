@@ -200,6 +200,71 @@ def murmurhash3_128(data: bytes, seed: int = 0) -> tuple[int, int]:
     return (h1, h2)
 
 
+def generate_colliding_blocks(base_block: bytes,
+                              count: int,
+                              block_size: int = 4096,
+                              chain: bool = True):
+    """Generate blocks with the same MurmurHash3 hash as base_block.
+
+    Mimics the behavior of the C murmur3collide tool, including the Gray-code
+    counter mechanism for chunk selection. This ensures different chunks are
+    modified across sequential blocks to preserve compressibility.
+
+    Args:
+        base_block: Initial block to transform (must be block_size bytes).
+        count: Number of colliding blocks to generate.
+        block_size: Size of each block in bytes (must be multiple of 32).
+        chain: If True, each block transforms the previous output (like the C
+            tool with same input/output file). If False, each block transforms
+            the original base_block independently.
+
+    Yields:
+        Transformed blocks, one at a time. Each has the same hash as base_block
+        but different data.
+
+    Example (Collide02/03 pattern - chaining):
+        base = b'\\x00' * 4096
+        for block in generate_colliding_blocks(base, 999999, chain=True):
+            write_block(block)
+
+    Example (Collide01 pattern - independent):
+        first_dataset = [read_block(i) for i in range(1000000)]
+        for i, src in enumerate(first_dataset):
+            block = next(generate_colliding_blocks(src, 1, chain=False))
+            write_block(1000000 + i, block)
+    """
+    if len(base_block) != block_size:
+        raise ValueError(f"base_block must be {block_size} bytes")
+    if block_size % 32 != 0:
+        raise ValueError(f"block_size must be a multiple of 32")
+
+    n_chunks = block_size // 32
+    current_block = base_block
+    counter = 0
+
+    for _ in range(count):
+        counter += 1
+        # Gray-code-like mechanism: use position of first set bit to select chunk.
+        # This matches __builtin_ffsl(++counter) % (size / 32) from the C code.
+        # Note: bin(counter).rfind('1') gives position of last set bit,
+        # but we want first set bit from LSB, which is (counter & -counter).bit_length() - 1
+        # Actually, __builtin_ffsl returns 1-indexed position of first set bit.
+        # For counter=1 (0b1), ffsl=1. For counter=2 (0b10), ffsl=2.
+        # For counter=3 (0b11), ffsl=1. For counter=4 (0b100), ffsl=3.
+        first_set_bit_pos = (counter & -counter).bit_length()  # 1-indexed like ffsl
+        chunk_index = (first_set_bit_pos - 1) % n_chunks
+
+        # Transform the current block by modifying the selected chunk
+        result = murmur3_collide(current_block, chunk_indices=[chunk_index])
+
+        yield result
+
+        if chain:
+            # Next iteration transforms this output
+            current_block = result
+        # else: keep transforming the original base_block
+
+
 if __name__ == "__main__":
     import os
 
@@ -247,3 +312,30 @@ if __name__ == "__main__":
     print(f"\nFor a 4096-byte block:")
     print(f"  {n_chunks} independent 32-byte chunks, each with 2 states")
     print(f"  2^{n_chunks} = ~3.4e38 distinct blocks with the same hash")
+
+    # Test the Gray-code generator with chaining
+    print(f"\n--- Testing generate_colliding_blocks (chain=True) ---")
+    zero_block = b'\x00' * 4096
+    base_hash = murmurhash3_128(zero_block)
+    print(f"Base block (zeros) hash: ({base_hash[0]:#018x}, {base_hash[1]:#018x})")
+
+    gen = generate_colliding_blocks(zero_block, count=10, chain=True)
+    for i, collided_block in enumerate(gen, 1):
+        h = murmurhash3_128(collided_block)
+        assert h == base_hash, f"Block {i} hash mismatch"
+        assert collided_block != zero_block, f"Block {i} same as base"
+        print(f"  Block {i}: hash matches, data differs")
+
+    # Test independent transformation (chain=False)
+    print(f"\n--- Testing generate_colliding_blocks (chain=False) ---")
+    gen2 = generate_colliding_blocks(zero_block, count=5, chain=False)
+    prev_blocks = []
+    for i, collided_block in enumerate(gen2, 1):
+        h = murmurhash3_128(collided_block)
+        assert h == base_hash, f"Block {i} hash mismatch"
+        # With chain=False, we might see repeats because we're always transforming
+        # the same base block with the same Gray-code pattern
+        prev_blocks.append(collided_block)
+        print(f"  Block {i}: hash matches")
+
+    print("\n✓ All tests passed")
