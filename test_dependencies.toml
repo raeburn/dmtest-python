@@ -369,3 +369,7 @@ targets = [ "linear", "vdo",]
 ["/vdo/collide/two-sets"]
 executables = [ "blockdev", "dmsetup", "echo", "vdoformat",]
 targets = [ "vdo",]
+
+["/vdo/collide/many-collisions"]
+executables = [ "blockdev", "dmsetup", "echo", "vdoformat",]
+targets = [ "vdo",]
