@@ -349,3 +349,19 @@ targets = [ "vdo",]
 ["/vdo/full/full01"]
 executables = [ "blockdev", "dmsetup", "udevadm", "vdoformat",]
 targets = [ "linear", "vdo",]
+
+["/vdo/full/full02-vanilla"]
+executables = [ "blockdev", "dmsetup", "udevadm", "vdoformat",]
+targets = [ "linear", "vdo",]
+
+["/vdo/full/full02-compress"]
+executables = [ "blockdev", "dmsetup", "udevadm", "vdoformat",]
+targets = [ "linear", "vdo",]
+
+["/vdo/full/full02-compress-and-dedupe"]
+executables = [ "blockdev", "dmsetup", "udevadm", "vdoformat",]
+targets = [ "linear", "vdo",]
+
+["/vdo/full/full02-dedupe"]
+executables = [ "blockdev", "dmsetup", "udevadm", "vdoformat",]
+targets = [ "linear", "vdo",]
