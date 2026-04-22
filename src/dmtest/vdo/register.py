@@ -1,4 +1,5 @@
 import dmtest.vdo.basic_01_tests as vdo_basic_01
+import dmtest.vdo.collide_01_tests as vdo_collide_01
 import dmtest.vdo.compress_01_tests as vdo_compress_01
 import dmtest.vdo.compress_tests as vdo_compress
 import dmtest.vdo.creation_tests as vdo_creation
@@ -10,6 +11,7 @@ import dmtest.vdo.load_failure_tests as vdo_load_failure
 
 def register(tests):
     vdo_basic_01.register(tests)
+    vdo_collide_01.register(tests)
     vdo_creation.register(tests)
     vdo_dedupe.register(tests)
     vdo_compress.register(tests)
