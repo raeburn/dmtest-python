@@ -345,3 +345,7 @@ targets = [ "vdo",]
 ["/vdo/basic/basic01"]
 executables = [ "bash", "blockdev", "cat", "cp", "dmsetup", "echo", "fsck.ext4", "mkdir", "mkfs.ext4", "mount", "umount", "vdoformat",]
 targets = [ "vdo",]
+
+["/vdo/full/full01"]
+executables = [ "blockdev", "dmsetup", "udevadm", "vdoformat",]
+targets = [ "linear", "vdo",]
