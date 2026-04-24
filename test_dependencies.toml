@@ -477,3 +477,7 @@ targets = [ "vdo",]
 ["/vdo/full/full-warn"]
 executables = [ "blockdev", "dmsetup", "udevadm", "vdoformat",]
 targets = [ "linear", "vdo",]
+
+["/vdo/grow-logical/auto-grow-logical"]
+executables = [ "blockdev", "dmsetup", "vdoformat",]
+targets = [ "vdo",]
