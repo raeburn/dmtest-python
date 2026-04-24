@@ -493,3 +493,7 @@ targets = [ "vdo",]
 ["/vdo/sysfs/length-check"]
 executables = [ "blockdev", "dmsetup", "vdoformat",]
 targets = [ "vdo",]
+
+["/vdo/dual/dual-01"]
+executables = [ "blkdiscard", "blockdev", "dmsetup", "echo", "fsck.ext4", "lvcreate", "lvremove", "mkfs.ext4", "mount", "sync", "udevadm", "umount", "vdoformat", "vgcreate", "vgremove", "vgs",]
+targets = [ "vdo",]

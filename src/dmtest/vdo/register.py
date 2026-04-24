@@ -9,6 +9,7 @@ import dmtest.vdo.create_03_tests as vdo_create_03
 import dmtest.vdo.creation_tests as vdo_creation
 import dmtest.vdo.dedupe_tests as vdo_dedupe
 import dmtest.vdo.device_swap_tests as vdo_device_swap
+import dmtest.vdo.dual_01_tests as vdo_dual_01
 import dmtest.vdo.direct_01_tests as vdo_direct_01
 import dmtest.vdo.direct_02_tests as vdo_direct_02
 import dmtest.vdo.direct_03_tests as vdo_direct_03
@@ -44,6 +45,7 @@ def register(tests):
     vdo_creation.register(tests)
     vdo_dedupe.register(tests)
     vdo_device_swap.register(tests)
+    vdo_dual_01.register(tests)
     vdo_direct_01.register(tests)
     vdo_direct_02.register(tests)
     vdo_direct_03.register(tests)
