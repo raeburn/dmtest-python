@@ -445,3 +445,7 @@ targets = [ "vdo",]
 ["/vdo/direct/direct-03-discard-with-holes"]
 executables = [ "blkdiscard", "blockdev", "dmsetup", "sh", "udevadm", "vdoformat",]
 targets = [ "vdo",]
+
+["/vdo/device-swap/device-switch"]
+executables = [ "blockdev", "dd", "dmsetup", "vdoformat",]
+targets = [ "linear", "vdo",]
