@@ -481,3 +481,7 @@ targets = [ "linear", "vdo",]
 ["/vdo/grow-logical/auto-grow-logical"]
 executables = [ "blockdev", "dmsetup", "vdoformat",]
 targets = [ "vdo",]
+
+["/vdo/dmsetup/rename"]
+executables = [ "blockdev", "dmsetup", "vdoformat",]
+targets = [ "vdo",]
