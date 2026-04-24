@@ -401,3 +401,7 @@ targets = [ "vdo",]
 ["/vdo/zero/dedupe"]
 executables = [ "blockdev", "cmp", "dd", "dmsetup", "echo", "fsck.ext4", "mkfs.ext4", "mount", "sync", "umount", "vdoformat",]
 targets = [ "vdo",]
+
+["/vdo/creation/create-03"]
+executables = [ "blockdev", "dmsetup", "udevadm", "vdoformat",]
+targets = [ "vdo",]
