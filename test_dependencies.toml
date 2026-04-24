@@ -453,3 +453,7 @@ targets = [ "linear", "vdo",]
 ["/vdo/direct/same-blocks"]
 executables = [ "blockdev", "cmp", "dd", "dmsetup", "vdoformat",]
 targets = [ "vdo",]
+
+["/vdo/full/full03"]
+executables = [ "blockdev", "dmsetup", "sh", "udevadm", "vdoformat",]
+targets = [ "linear", "vdo",]

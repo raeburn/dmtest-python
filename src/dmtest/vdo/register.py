@@ -18,6 +18,7 @@ import dmtest.vdo.discard_512_compressed_tests as vdo_discard_512_compressed
 import dmtest.vdo.full_tests as vdo_full
 import dmtest.vdo.full_01_tests as vdo_full_01
 import dmtest.vdo.full_02_tests as vdo_full_02
+import dmtest.vdo.full_03_tests as vdo_full_03
 import dmtest.vdo.gen_data_01_tests as vdo_gen_data_01
 import dmtest.vdo.gen_data_02_tests as vdo_gen_data_02
 import dmtest.vdo.gen_data_03_tests as vdo_gen_data_03
@@ -46,6 +47,7 @@ def register(tests):
     vdo_full.register(tests)
     vdo_full_01.register(tests)
     vdo_full_02.register(tests)
+    vdo_full_03.register(tests)
     vdo_gen_data_01.register(tests)
     vdo_gen_data_02.register(tests)
     vdo_gen_data_03.register(tests)
