@@ -11,6 +11,7 @@ import dmtest.vdo.device_swap_tests as vdo_device_swap
 import dmtest.vdo.direct_01_tests as vdo_direct_01
 import dmtest.vdo.direct_02_tests as vdo_direct_02
 import dmtest.vdo.direct_03_tests as vdo_direct_03
+import dmtest.vdo.direct_04_tests as vdo_direct_04
 import dmtest.vdo.direct_06_tests as vdo_direct_06
 import dmtest.vdo.discard_512_tests as vdo_discard_512
 import dmtest.vdo.discard_512_compressed_tests as vdo_discard_512_compressed
@@ -36,6 +37,7 @@ def register(tests):
     vdo_direct_01.register(tests)
     vdo_direct_02.register(tests)
     vdo_direct_03.register(tests)
+    vdo_direct_04.register(tests)
     vdo_direct_06.register(tests)
     vdo_discard_512.register(tests)
     vdo_discard_512_compressed.register(tests)

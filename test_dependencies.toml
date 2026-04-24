@@ -449,3 +449,7 @@ targets = [ "vdo",]
 ["/vdo/device-swap/device-switch"]
 executables = [ "blockdev", "dd", "dmsetup", "vdoformat",]
 targets = [ "linear", "vdo",]
+
+["/vdo/direct/same-blocks"]
+executables = [ "blockdev", "cmp", "dd", "dmsetup", "vdoformat",]
+targets = [ "vdo",]

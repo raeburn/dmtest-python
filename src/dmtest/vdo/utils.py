@@ -19,6 +19,9 @@ GB = 1024 * MB
 
 BLOCK_SIZE = 4 * kB
 
+# VDO slab bit count constants
+SLAB_BITS_SMALL = 17  # Smallest size that works for any RSVP-reserved host
+
 fio_config_template = """
 [stuff]
 randrepeat=1
