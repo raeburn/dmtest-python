@@ -501,3 +501,7 @@ targets = [ "vdo",]
 ["/vdo/gen-data/parallel-data"]
 executables = [ "blockdev", "dmsetup", "echo", "fsck.ext4", "mkfs.ext4", "mount", "sync", "umount", "vdoformat",]
 targets = [ "vdo",]
+
+["/vdo/full/full04-vanilla"]
+executables = [ "blockdev", "dmsetup", "sh", "vdoformat",]
+targets = [ "linear", "vdo",]
