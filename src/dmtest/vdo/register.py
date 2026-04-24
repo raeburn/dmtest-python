@@ -26,6 +26,7 @@ import dmtest.vdo.full_warn_tests as vdo_full_warn
 import dmtest.vdo.gen_data_01_tests as vdo_gen_data_01
 import dmtest.vdo.gen_data_02_tests as vdo_gen_data_02
 import dmtest.vdo.gen_data_03_tests as vdo_gen_data_03
+import dmtest.vdo.gen_data_04_tests as vdo_gen_data_04
 import dmtest.vdo.grow_logical_03_tests as vdo_grow_logical_03
 import dmtest.vdo.instance_tests as vdo_instance
 import dmtest.vdo.load_failure_tests as vdo_load_failure
@@ -64,6 +65,7 @@ def register(tests):
     vdo_gen_data_01.register(tests)
     vdo_gen_data_02.register(tests)
     vdo_gen_data_03.register(tests)
+    vdo_gen_data_04.register(tests)
     vdo_grow_logical_03.register(tests)
     vdo_instance.register(tests)
     vdo_load_failure.register(tests)
