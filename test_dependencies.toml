@@ -417,3 +417,19 @@ targets = [ "vdo",]
 ["/vdo/discard/discard-512-compressed"]
 executables = [ "blkdiscard", "blockdev", "cmp", "date", "dd", "dmsetup", "rm", "sync", "vdoformat",]
 targets = [ "vdo",]
+
+["/vdo/slab-count/small-small"]
+executables = [ "blockdev", "dmsetup", "vdoformat",]
+targets = [ "linear", "vdo",]
+
+["/vdo/slab-count/tiny-multi"]
+executables = [ "blockdev", "dmsetup", "vdoformat",]
+targets = [ "linear", "vdo",]
+
+["/vdo/slab-count/tiny-small"]
+executables = [ "blockdev", "dmsetup", "vdoformat",]
+targets = [ "linear", "vdo",]
+
+["/vdo/slab-count/tiny-tiny"]
+executables = [ "blockdev", "dmsetup", "vdoformat",]
+targets = [ "linear", "vdo",]

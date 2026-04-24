@@ -19,6 +19,7 @@ import dmtest.vdo.gen_data_01_tests as vdo_gen_data_01
 import dmtest.vdo.gen_data_02_tests as vdo_gen_data_02
 import dmtest.vdo.gen_data_03_tests as vdo_gen_data_03
 import dmtest.vdo.load_failure_tests as vdo_load_failure
+import dmtest.vdo.slab_count_01_tests as vdo_slab_count_01
 import dmtest.vdo.zero_01_tests as vdo_zero_01
 
 def register(tests):
@@ -43,4 +44,5 @@ def register(tests):
     vdo_gen_data_02.register(tests)
     vdo_gen_data_03.register(tests)
     vdo_load_failure.register(tests)
+    vdo_slab_count_01.register(tests)
     vdo_zero_01.register(tests)
