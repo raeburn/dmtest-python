@@ -381,3 +381,7 @@ targets = [ "vdo",]
 ["/vdo/direct/direct-01"]
 executables = [ "blockdev", "dmsetup", "udevadm", "vdoformat",]
 targets = [ "vdo",]
+
+["/vdo/gen-data/gen-data-02"]
+executables = [ "blockdev", "dmsetup", "echo", "fsck.ext4", "mkfs.ext4", "mount", "sync", "umount", "vdoformat",]
+targets = [ "vdo",]
