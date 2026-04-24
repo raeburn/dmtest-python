@@ -68,7 +68,8 @@ def status(name, *args):
 
 
 def table(name):
-    run(f"dmsetup table {name}")
+    (_, stdout, _) = run(f"dmsetup table {name}")
+    return stdout
 
 
 def info(name):

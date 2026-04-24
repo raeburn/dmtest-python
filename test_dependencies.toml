@@ -509,3 +509,11 @@ targets = [ "linear", "vdo",]
 ["/vdo/in-flight-dedupe-and-compress/test"]
 executables = [ "blockdev", "cmp", "dd", "dmsetup", "rm", "vdoformat",]
 targets = [ "vdo",]
+
+["/vdo/dmsetup/basic-ops"]
+executables = [ "blockdev", "dmsetup", "vdoformat",]
+targets = [ "vdo",]
+
+["/vdo/dmsetup/config-non-default-slab"]
+executables = [ "blockdev", "dmsetup", "vdoformat",]
+targets = [ "vdo",]
