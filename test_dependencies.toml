@@ -505,3 +505,7 @@ targets = [ "vdo",]
 ["/vdo/full/full04-vanilla"]
 executables = [ "blockdev", "dmsetup", "sh", "vdoformat",]
 targets = [ "linear", "vdo",]
+
+["/vdo/in-flight-dedupe-and-compress/test"]
+executables = [ "blockdev", "cmp", "dd", "dmsetup", "rm", "vdoformat",]
+targets = [ "vdo",]
