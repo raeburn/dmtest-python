@@ -461,3 +461,7 @@ targets = [ "linear", "vdo",]
 ["/vdo/direct/direct-05"]
 executables = [ "blockdev", "dmsetup", "echo", "udevadm", "vdoformat",]
 targets = [ "vdo",]
+
+["/vdo/collide/compressing-collisions"]
+executables = [ "blockdev", "dmsetup", "echo", "vdoformat",]
+targets = [ "vdo",]
