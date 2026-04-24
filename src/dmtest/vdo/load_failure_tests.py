@@ -44,7 +44,13 @@ def t_bad_values(fix):
         opts["format"] = False
         opts[thread_type] = 1 << 32
         try_a_bad_value(fix, "integer value needed", **opts)
-    # To be tested: physical zones exceeds slab count
+
+    # NOTE: The Perl test also checked "physical zones exceeds slab count" by
+    # setting logical=1, physical=16 with slab_bits=15. However, the current
+    # kernel VDO driver requires logical, physical, and hash zone counts to all
+    # be set together, and the validation order prevents reaching the "physical
+    # zones exceeds slab count" check. This test case is omitted as it's not
+    # achievable with current kernel validation logic.
 
 
 def t_corrupt_geometry(fix):
