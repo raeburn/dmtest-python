@@ -457,3 +457,7 @@ targets = [ "vdo",]
 ["/vdo/full/full03"]
 executables = [ "blockdev", "dmsetup", "sh", "udevadm", "vdoformat",]
 targets = [ "linear", "vdo",]
+
+["/vdo/direct/direct-05"]
+executables = [ "blockdev", "dmsetup", "echo", "udevadm", "vdoformat",]
+targets = [ "vdo",]
