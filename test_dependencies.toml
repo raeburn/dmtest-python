@@ -409,3 +409,7 @@ targets = [ "vdo",]
 ["/vdo/discard/discard-512"]
 executables = [ "blkdiscard", "blockdev", "cmp", "date", "dd", "dmsetup", "rm", "sync", "vdoformat",]
 targets = [ "vdo",]
+
+["/vdo/direct/direct-02"]
+executables = [ "blockdev", "dmsetup", "udevadm", "vdoformat",]
+targets = [ "vdo",]

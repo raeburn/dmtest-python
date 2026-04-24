@@ -8,6 +8,7 @@ import dmtest.vdo.create_03_tests as vdo_create_03
 import dmtest.vdo.creation_tests as vdo_creation
 import dmtest.vdo.dedupe_tests as vdo_dedupe
 import dmtest.vdo.direct_01_tests as vdo_direct_01
+import dmtest.vdo.direct_02_tests as vdo_direct_02
 import dmtest.vdo.direct_06_tests as vdo_direct_06
 import dmtest.vdo.discard_512_tests as vdo_discard_512
 import dmtest.vdo.full_tests as vdo_full
@@ -28,6 +29,7 @@ def register(tests):
     vdo_creation.register(tests)
     vdo_dedupe.register(tests)
     vdo_direct_01.register(tests)
+    vdo_direct_02.register(tests)
     vdo_direct_06.register(tests)
     vdo_discard_512.register(tests)
     vdo_compress.register(tests)
