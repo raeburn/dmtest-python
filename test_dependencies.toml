@@ -433,3 +433,15 @@ targets = [ "linear", "vdo",]
 ["/vdo/slab-count/tiny-tiny"]
 executables = [ "blockdev", "dmsetup", "vdoformat",]
 targets = [ "linear", "vdo",]
+
+["/vdo/direct/direct-03-discard-blocks"]
+executables = [ "blkdiscard", "blockdev", "dmsetup", "sh", "udevadm", "vdoformat",]
+targets = [ "vdo",]
+
+["/vdo/direct/direct-03-discard-duplicated-blocks"]
+executables = [ "blkdiscard", "blockdev", "dmsetup", "sh", "udevadm", "vdoformat",]
+targets = [ "vdo",]
+
+["/vdo/direct/direct-03-discard-with-holes"]
+executables = [ "blkdiscard", "blockdev", "dmsetup", "sh", "udevadm", "vdoformat",]
+targets = [ "vdo",]
