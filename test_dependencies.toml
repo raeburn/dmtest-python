@@ -485,3 +485,11 @@ targets = [ "vdo",]
 ["/vdo/dmsetup/rename"]
 executables = [ "blockdev", "dmsetup", "vdoformat",]
 targets = [ "vdo",]
+
+["/vdo/sysfs/basic"]
+executables = [ "blockdev", "cat", "dmsetup", "echo", "vdoformat",]
+targets = [ "vdo",]
+
+["/vdo/sysfs/length-check"]
+executables = [ "blockdev", "dmsetup", "vdoformat",]
+targets = [ "vdo",]
