@@ -36,6 +36,8 @@ import dmtest.vdo.load_failure_tests as vdo_load_failure
 import dmtest.vdo.major_minor_tests as vdo_major_minor
 import dmtest.vdo.slab_count_01_tests as vdo_slab_count_01
 import dmtest.vdo.sysfs_tests as vdo_sysfs
+import dmtest.vdo.uds_timeout_01_tests as vdo_uds_timeout_01
+import dmtest.vdo.vdo_format_in_kernel_tests as vdo_format_in_kernel
 import dmtest.vdo.vdo_rename_tests as vdo_rename
 import dmtest.vdo.zero_01_tests as vdo_zero_01
 
@@ -79,4 +81,6 @@ def register(tests):
     vdo_rename.register(tests)
     vdo_slab_count_01.register(tests)
     vdo_sysfs.register(tests)
+    vdo_uds_timeout_01.register(tests)
+    vdo_format_in_kernel.register(tests)
     vdo_zero_01.register(tests)
