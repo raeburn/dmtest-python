@@ -22,3 +22,21 @@ def vdo_stats(dev):
     os.sync()
     stats = dev.message(0, "stats");
     return _parse_vdo_stats(stats)
+
+
+def get_usable_data_blocks(vdo_stats):
+    """Calculate the number of blocks that can be used for data.
+
+    Returns physical blocks minus overhead blocks used.
+    """
+    return vdo_stats["physicalBlocks"] - vdo_stats["overheadBlocksUsed"]
+
+
+def get_free_blocks(vdo_stats):
+    """Calculate the number of free blocks.
+
+    Returns physical blocks minus overhead and data blocks used.
+    """
+    return (vdo_stats["physicalBlocks"]
+            - vdo_stats["overheadBlocksUsed"]
+            - vdo_stats["dataBlocksUsed"])

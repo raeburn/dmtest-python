@@ -1,3 +1,6 @@
+import logging as log
+import time
+
 from dmtest.assertions import assert_equal
 import dmtest.device_mapper.dev as dmdev
 from dmtest.gendatablocks import make_block_range
@@ -5,14 +8,9 @@ import dmtest.process as process
 import dmtest.tvm as tvm
 import dmtest.units as units
 import dmtest.vdo.stats as stats
+from dmtest.vdo.stats import get_free_blocks
 from dmtest.vdo.utils import MB, GB, populate_block_map
 import dmtest.vdo.vdo_stack as vs
-
-import logging as log
-import time
-
-def get_free_space(stats):
-    return stats["physicalBlocks"] - stats["overheadBlocksUsed"] - stats["dataBlocksUsed"]
 
 def t_full(fix):
     data_dev = fix.cfg["data_dev"]
@@ -31,7 +29,7 @@ def t_full(fix):
             populate_block_map(vdo)
             mapped_stats = stats.vdo_stats(vdo)
             assert_equal(mapped_stats["dataBlocksUsed"], 0)
-            free_space = get_free_space(mapped_stats)
+            free_space = get_free_blocks(mapped_stats)
             size1 = (free_space - 1) * 4096
             size2 = MB
             # This test assumes size1 > size2 ...
@@ -52,17 +50,17 @@ def t_full(fix):
             # Fill all blocks but one.
             range1.write(tag="tag1")
             new_stats = stats.vdo_stats(vdo)
-            free_space = get_free_space(new_stats)
+            free_space = get_free_blocks(new_stats)
             assert_equal(free_space, 1)
             # New locations but repeated data
             range2.write(tag="tag1")
             new_stats = stats.vdo_stats(vdo)
-            free_space = get_free_space(new_stats)
+            free_space = get_free_blocks(new_stats)
             assert_equal(free_space, 1)
             # Finish filling the device - new location & data
             range3.write(tag="tag2")
             new_stats = stats.vdo_stats(vdo)
-            free_space = get_free_space(new_stats)
+            free_space = get_free_blocks(new_stats)
             assert_equal(free_space, 0)
             # Writing duplicate data should work
             range4.write(tag="tag2", fsync=True)
@@ -98,7 +96,7 @@ def t_full(fix):
             # Free some space - discard some unique, some duplicated data
             range1.trim(fsync=True)
             new_stats = stats.vdo_stats(vdo)
-            free_space = get_free_space(new_stats)
+            free_space = get_free_blocks(new_stats)
             assert_equal(free_space, (size1 - MB) // 4096)
 
 def register(tests):

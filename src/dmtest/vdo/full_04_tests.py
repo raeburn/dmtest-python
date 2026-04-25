@@ -9,14 +9,7 @@ import dmtest.units as units
 from dmtest.vdo.utils import MB, GB
 import dmtest.vdo.vdo_stack as vs
 import dmtest.vdo.stats as stats
-
-
-def get_usable_data_blocks(vdo_stats):
-    """Calculate the number of blocks that can be used for data.
-
-    Returns physical blocks minus overhead blocks used.
-    """
-    return vdo_stats["physicalBlocks"] - vdo_stats["overheadBlocksUsed"]
+from dmtest.vdo.stats import get_usable_data_blocks
 
 
 def sync_device_ignoring_errors(device_path):

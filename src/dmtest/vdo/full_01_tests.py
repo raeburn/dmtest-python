@@ -1,3 +1,5 @@
+import logging as log
+
 from dmtest.assertions import assert_equal
 import dmtest.device_mapper.dev as dmdev
 from dmtest.gendatablocks import make_block_range
@@ -7,21 +9,7 @@ import dmtest.units as units
 from dmtest.vdo.utils import MB, GB
 import dmtest.vdo.vdo_stack as vs
 import dmtest.vdo.stats as stats
-
-import logging as log
-
-def get_usable_data_blocks(vdo_stats):
-    """Calculate the number of blocks that can be used for data.
-
-    Returns physical blocks minus overhead blocks used.
-    """
-    return vdo_stats["physicalBlocks"] - vdo_stats["overheadBlocksUsed"]
-
-def get_free_blocks(vdo_stats):
-    """Calculate the number of free blocks."""
-    return (vdo_stats["physicalBlocks"]
-            - vdo_stats["overheadBlocksUsed"]
-            - vdo_stats["dataBlocksUsed"])
+from dmtest.vdo.stats import get_free_blocks, get_usable_data_blocks
 
 def t_no_space(fix):
     """Test system behavior when VDO runs out of physical space.
