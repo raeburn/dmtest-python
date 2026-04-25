@@ -34,6 +34,7 @@ import dmtest.vdo.in_flight_dedupe_and_compress_tests as vdo_in_flight_dedupe_an
 import dmtest.vdo.instance_tests as vdo_instance
 import dmtest.vdo.load_failure_tests as vdo_load_failure
 import dmtest.vdo.major_minor_tests as vdo_major_minor
+import dmtest.vdo.memory_fail_01_tests as vdo_memory_fail_01
 import dmtest.vdo.slab_count_01_tests as vdo_slab_count_01
 import dmtest.vdo.sysfs_tests as vdo_sysfs
 import dmtest.vdo.uds_timeout_01_tests as vdo_uds_timeout_01
@@ -78,6 +79,7 @@ def register(tests):
     vdo_instance.register(tests)
     vdo_load_failure.register(tests)
     vdo_major_minor.register(tests)
+    vdo_memory_fail_01.register(tests)
     vdo_rename.register(tests)
     vdo_slab_count_01.register(tests)
     vdo_sysfs.register(tests)
