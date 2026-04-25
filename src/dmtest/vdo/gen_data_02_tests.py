@@ -2,21 +2,19 @@
 VDO GenData02 test - Parallel compression testing
 """
 import logging as log
-import os
 import tempfile
 from concurrent.futures import ThreadPoolExecutor, as_completed
 
 from dmtest.assertions import assert_equal
 from dmtest.fs import Ext4
-from dmtest.gendatablocks import make_block_range
 from dmtest.vdo.utils import standard_vdo
+from dmtest.vdo.dataset_helpers import write_file_dataset, verify_file_dataset
 import dmtest.process as process
 import dmtest.vdo.stats as stats
 
 
 def _write_and_verify_dataset(mount_point, tag, num_files, blocks_per_file, dedupe, compress):
-    """
-    Write and verify a dataset of files with specified deduplication and compression.
+    """Write and verify a dataset with compression support.
 
     Args:
         mount_point: Filesystem mount point
@@ -29,31 +27,15 @@ def _write_and_verify_dataset(mount_point, tag, num_files, blocks_per_file, dedu
     Returns:
         Tuple of (tag, success)
     """
-    dataset_dir = os.path.join(mount_point, tag)
-    os.makedirs(dataset_dir, exist_ok=True)
-
-    total_bytes = num_files * blocks_per_file * 4096
-    log.info(f"Writing dataset {tag}: {num_files} files, {blocks_per_file} blocks each, "
-             f"{total_bytes} bytes total, dedupe={dedupe}, compress={compress}")
-
     try:
-        ranges = []
-        for i in range(num_files):
-            file_path = os.path.join(dataset_dir, f"file_{i:08d}")
+        dataset_dir, ranges = write_file_dataset(
+            mount_point, tag, num_files,
+            blocks_per_file=blocks_per_file,
+            dedupe=dedupe,
+            compress=compress
+        )
 
-            # Create the file
-            with open(file_path, 'w') as f:
-                pass
-
-            # Write data to the file
-            block_range = make_block_range(file_path, blocks_per_file)
-            block_range.write(tag, dedupe=dedupe, compress=compress, fsync=False)
-            ranges.append(block_range)
-
-        log.info(f"Verifying dataset {tag}: {num_files} files")
-
-        for block_range in ranges:
-            block_range.verify()
+        verify_file_dataset(ranges, tag)
 
         log.info(f"Completed dataset {tag}")
         return (tag, True)

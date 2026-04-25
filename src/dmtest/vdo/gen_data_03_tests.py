@@ -9,63 +9,10 @@ from concurrent.futures import ThreadPoolExecutor, as_completed
 
 from dmtest.assertions import assert_equal, assert_near
 from dmtest.fs import Ext4
-from dmtest.gendatablocks import make_block_range
 from dmtest.vdo.utils import standard_vdo
+from dmtest.vdo.dataset_helpers import write_file_dataset, verify_file_dataset
 import dmtest.process as process
 import dmtest.vdo.stats as stats
-
-
-def _write_dataset(mount_point, tag, num_files, num_bytes, dedupe):
-    """
-    Write a dataset of files with specified characteristics.
-
-    Args:
-        mount_point: Filesystem mount point
-        tag: Tag for the data stream
-        num_files: Number of files to create
-        num_bytes: Total bytes to write across all files
-        dedupe: Deduplication rate (0.0 to 1.0)
-
-    Returns:
-        Tuple of (dataset_dir, list of BlockRange objects)
-    """
-    dataset_dir = os.path.join(mount_point, f"dataset_{tag}")
-    os.makedirs(dataset_dir, exist_ok=True)
-
-    blocks_per_file = int(num_bytes // (num_files * 4096))
-    if blocks_per_file < 1:
-        blocks_per_file = 1
-
-    log.info(f"Writing dataset {tag}: {num_files} files, {blocks_per_file} blocks each, "
-             f"dedupe={dedupe}")
-
-    ranges = []
-    for i in range(num_files):
-        file_path = os.path.join(dataset_dir, f"file_{i:08d}")
-
-        # Create the file
-        with open(file_path, 'w') as f:
-            pass
-
-        # Write data to the file
-        block_range = make_block_range(file_path, blocks_per_file)
-        block_range.write(tag, dedupe=dedupe, fsync=False)
-        ranges.append(block_range)
-
-    return (dataset_dir, ranges)
-
-
-def _verify_dataset(ranges, tag):
-    """
-    Verify a dataset of files.
-
-    Args:
-        ranges: List of BlockRange objects to verify
-        tag: Tag identifying the dataset
-    """
-    log.info(f"Verifying dataset {tag}: {len(ranges)} files")
-    for block_range in ranges:
-        block_range.verify()
 
 
 def _delete_dataset(dataset_dir, tag):
@@ -109,14 +56,14 @@ def _gen_data_task(task_number, num_tasks, mount_point, data_size):
 
         # Verify and delete previous datasets
         for dataset_dir, ranges, tag in datasets:
-            _verify_dataset(ranges, tag)
+            verify_file_dataset(ranges, tag)
             _delete_dataset(dataset_dir, tag)
 
         datasets = new_datasets
 
     # Verify and delete the last datasets
     for dataset_dir, ranges, tag in datasets:
-        _verify_dataset(ranges, tag)
+        verify_file_dataset(ranges, tag)
         _delete_dataset(dataset_dir, tag)
 
     log.info(f"Task {task_number}: Completed")
@@ -156,7 +103,8 @@ def _gen_datasets(task_number, iteration, mount_point, data_size):
     for i in range(len(num_files_list)):
         tag = f"{task_number}{tags[i]}{iteration}"
         num_files = num_files_list[i]
-        dataset_dir, ranges = _write_dataset(mount_point, tag, num_files, num_bytes, dedupe=0.5)
+        dataset_dir, ranges = write_file_dataset(
+            mount_point, tag, num_files, num_bytes=num_bytes, dedupe=0.5)
         datasets.append((dataset_dir, ranges, tag))
 
     return datasets
