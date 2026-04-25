@@ -9,114 +9,10 @@ import os
 
 from dmtest.assertions import assert_equal
 from dmtest.vdo.utils import BLOCK_SIZE, standard_vdo
-from dmtest.vdo.murmur3collide import generate_colliding_blocks
+from dmtest.vdo.collision_helpers import write_colliding_blocks, verify_colliding_blocks
 import dmtest.gendatablocks as generator
 import dmtest.process as process
 import dmtest.vdo.stats as stats
-
-
-def _write_chained_colliding_blocks(base_path: str,
-                                    dest_path: str,
-                                    block_count: int,
-                                    base_offset: int,
-                                    dest_offset: int,
-                                    block_size: int = BLOCK_SIZE) -> None:
-    """Read base block and write chained colliding blocks to dest.
-
-    Reads a single block from base_path at base_offset, then generates
-    block_count colliding blocks using chaining (each block transforms the
-    previous output). Writes the results to dest_path starting at dest_offset.
-
-    This matches the Collide02 pattern where murmur3collide reads from
-    the same device and writes sequentially with chaining enabled.
-
-    Args:
-        base_path: Device/file to read base block from
-        dest_path: Device/file to write to (may be same as base_path)
-        block_count: Number of colliding blocks to generate
-        base_offset: Block offset for reading the base block
-        dest_offset: Starting block offset for writes
-        block_size: Size of each block in bytes
-    """
-    log.info(f"Generating {block_count} chained colliding blocks from offset {base_offset}")
-
-    # Read the base block
-    with open(base_path, 'rb') as src:
-        src.seek(base_offset * block_size)
-        base_block = src.read(block_size)
-
-        if len(base_block) != block_size:
-            raise IOError(f"Failed to read base block: got {len(base_block)} bytes")
-
-    # Generate and write colliding blocks with chaining
-    with open(dest_path, 'r+b') as dest:
-        for i, collided_block in enumerate(generate_colliding_blocks(
-                base_block, count=block_count, block_size=block_size, chain=True)):
-
-            # Write to destination
-            dest.seek((dest_offset + i) * block_size)
-            dest.write(collided_block)
-
-            # Log progress periodically
-            if (i + 1) % 100000 == 0:
-                log.info(f"  Written {i + 1}/{block_count} blocks")
-
-        # Flush to disk
-        os.fsync(dest.fileno())
-
-    log.info(f"Completed writing {block_count} chained colliding blocks")
-
-
-def _verify_chained_colliding_blocks(base_path: str,
-                                     verify_path: str,
-                                     block_count: int,
-                                     base_offset: int,
-                                     verify_offset: int,
-                                     block_size: int = BLOCK_SIZE) -> None:
-    """Verify that blocks are chained transformations of the base block.
-
-    Reads the base block and generates the expected chain of colliding blocks,
-    then verifies each matches what's stored on disk.
-
-    Args:
-        base_path: Device/file to read base block from
-        verify_path: Device/file to read verify blocks from
-        block_count: Number of blocks to verify
-        base_offset: Block offset for reading the base block
-        verify_offset: Starting block offset for verify reads
-        block_size: Size of each block in bytes
-    """
-    log.info(f"Verifying {block_count} chained colliding blocks at offset {verify_offset}")
-
-    # Read the base block
-    with open(base_path, 'rb') as src:
-        src.seek(base_offset * block_size)
-        base_block = src.read(block_size)
-
-        if len(base_block) != block_size:
-            raise IOError(f"Failed to read base block: got {len(base_block)} bytes")
-
-    # Verify each block in the chain
-    with open(verify_path, 'rb') as verify:
-        for i, expected_block in enumerate(generate_colliding_blocks(
-                base_block, count=block_count, block_size=block_size, chain=True)):
-
-            # Read verify block
-            verify.seek((verify_offset + i) * block_size)
-            verify_block = verify.read(block_size)
-
-            if len(verify_block) != block_size:
-                raise IOError(f"Failed to read verify block {i}: got {len(verify_block)} bytes")
-
-            if expected_block != verify_block:
-                raise AssertionError(
-                    f"Block {i} verification failed: data does not match expected chained transformation")
-
-            # Log progress periodically
-            if (i + 1) % 100000 == 0:
-                log.info(f"  Verified {i + 1}/{block_count} blocks")
-
-    log.info(f"Successfully verified {block_count} chained colliding blocks")
 
 
 def t_many_collisions(fix) -> None:
@@ -150,13 +46,14 @@ def t_many_collisions(fix) -> None:
 
         # Write N-1 blocks with chained collisions (all have same hash as first block)
         log.info(f"Writing {block_count - 1} blocks with chained hash collisions")
-        _write_chained_colliding_blocks(
-            base_path=vdo.path,
+        write_colliding_blocks(
+            source_path=vdo.path,
             dest_path=vdo.path,
             block_count=block_count - 1,
-            base_offset=0,
+            source_offset=0,
             dest_offset=1,
-            block_size=BLOCK_SIZE)
+            block_size=BLOCK_SIZE,
+            chain=True)
 
         # Verify statistics
         log.info("Verifying statistics after all writes")
@@ -199,13 +96,14 @@ def t_many_collisions(fix) -> None:
         single_range.verify()
 
         log.info("Verifying chained colliding blocks")
-        _verify_chained_colliding_blocks(
-            base_path=vdo.path,
+        verify_colliding_blocks(
+            source_path=vdo.path,
             verify_path=vdo.path,
             block_count=block_count - 1,
-            base_offset=0,
+            source_offset=0,
             verify_offset=1,
-            block_size=BLOCK_SIZE)
+            block_size=BLOCK_SIZE,
+            chain=True)
 
         log.info("Test completed successfully")
 

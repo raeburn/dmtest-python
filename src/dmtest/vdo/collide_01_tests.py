@@ -9,115 +9,10 @@ import os
 
 from dmtest.assertions import assert_equal
 from dmtest.vdo.utils import BLOCK_SIZE, standard_vdo
-from dmtest.vdo.murmur3collide import generate_colliding_blocks
+from dmtest.vdo.collision_helpers import write_colliding_blocks, verify_colliding_blocks
 import dmtest.gendatablocks as generator
 import dmtest.process as process
 import dmtest.vdo.stats as stats
-
-
-def _write_colliding_blocks(source_path: str,
-                            dest_path: str,
-                            block_count: int,
-                            source_offset: int,
-                            dest_offset: int,
-                            block_size: int = BLOCK_SIZE) -> None:
-    """Read blocks from source and write transformed versions to dest.
-
-    Reads each block from source_path starting at source_offset, transforms
-    it using murmur3_collide to create a block with different data but the
-    same MurmurHash3 hash, and writes it to dest_path at dest_offset.
-
-    This creates independent transformations (not chained), matching the
-    Collide01 pattern where each output block is an independent transformation
-    of the corresponding input block.
-
-    Args:
-        source_path: Device/file to read from
-        dest_path: Device/file to write to (may be same as source_path)
-        block_count: Number of blocks to process
-        source_offset: Starting block offset for reads
-        dest_offset: Starting block offset for writes
-        block_size: Size of each block in bytes
-    """
-    log.info(f"Transforming {block_count} blocks from offset {source_offset} to {dest_offset}")
-
-    with open(source_path, 'rb') as src:
-        with open(dest_path, 'r+b') as dest:
-            for i in range(block_count):
-                # Read source block
-                src.seek((source_offset + i) * block_size)
-                source_block = src.read(block_size)
-
-                if len(source_block) != block_size:
-                    raise IOError(f"Failed to read block {i}: got {len(source_block)} bytes")
-
-                # Transform independently (chain=False means each transformation
-                # is based on the source block, not the previous output)
-                collided_block = next(generate_colliding_blocks(
-                    source_block, count=1, block_size=block_size, chain=False))
-
-                # Write to destination
-                dest.seek((dest_offset + i) * block_size)
-                dest.write(collided_block)
-
-                # Log progress periodically
-                if (i + 1) % 100000 == 0:
-                    log.info(f"  Processed {i + 1}/{block_count} blocks")
-
-            # Flush to disk
-            os.fsync(dest.fileno())
-
-    log.info(f"Completed transformation of {block_count} blocks")
-
-
-def _verify_colliding_blocks(source_path: str,
-                             verify_path: str,
-                             block_count: int,
-                             source_offset: int,
-                             verify_offset: int,
-                             block_size: int = BLOCK_SIZE) -> None:
-    """Verify that blocks at verify_offset are transformed versions of source blocks.
-
-    Reads each block from source and the corresponding block from verify location,
-    transforms the source block, and verifies it matches the verify block.
-
-    Args:
-        source_path: Device/file to read source blocks from
-        verify_path: Device/file to read verify blocks from
-        block_count: Number of blocks to verify
-        source_offset: Starting block offset for source reads
-        verify_offset: Starting block offset for verify reads
-        block_size: Size of each block in bytes
-    """
-    log.info(f"Verifying {block_count} transformed blocks at offset {verify_offset}")
-
-    with open(source_path, 'rb') as src:
-        with open(verify_path, 'rb') as verify:
-            for i in range(block_count):
-                # Read source block
-                src.seek((source_offset + i) * block_size)
-                source_block = src.read(block_size)
-
-                # Read verify block
-                verify.seek((verify_offset + i) * block_size)
-                verify_block = verify.read(block_size)
-
-                if len(source_block) != block_size or len(verify_block) != block_size:
-                    raise IOError(f"Failed to read blocks for verification at block {i}")
-
-                # Transform source and compare
-                expected_block = next(generate_colliding_blocks(
-                    source_block, count=1, block_size=block_size, chain=False))
-
-                if expected_block != verify_block:
-                    raise AssertionError(
-                        f"Block {i} verification failed: data does not match expected transformation")
-
-                # Log progress periodically
-                if (i + 1) % 100000 == 0:
-                    log.info(f"  Verified {i + 1}/{block_count} blocks")
-
-    log.info(f"Successfully verified {block_count} transformed blocks")
 
 
 def t_two_sets(fix) -> None:
@@ -175,13 +70,14 @@ def t_two_sets(fix) -> None:
 
         # Write second dataset with colliding hashes
         log.info(f"Writing second dataset of {block_count} blocks with colliding hashes")
-        _write_colliding_blocks(
+        write_colliding_blocks(
             source_path=vdo.path,
             dest_path=vdo.path,
             block_count=block_count,
             source_offset=0,
             dest_offset=block_count,
-            block_size=BLOCK_SIZE)
+            block_size=BLOCK_SIZE,
+            chain=False)
 
         # Verify second dataset statistics
         log.info("Verifying statistics after second dataset")
@@ -213,13 +109,14 @@ def t_two_sets(fix) -> None:
         first_range.verify()
 
         log.info("Verifying second dataset")
-        _verify_colliding_blocks(
+        verify_colliding_blocks(
             source_path=vdo.path,
             verify_path=vdo.path,
             block_count=block_count,
             source_offset=0,
             verify_offset=block_count,
-            block_size=BLOCK_SIZE)
+            block_size=BLOCK_SIZE,
+            chain=False)
 
         log.info("Test completed successfully")
 
