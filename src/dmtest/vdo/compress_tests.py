@@ -1,25 +1,10 @@
+import logging as log
+
 from dmtest.assertions import assert_equal, assert_near
 from dmtest.gendatablocks import make_block_range
 from dmtest.vdo.stats import vdo_stats
-from dmtest.vdo.utils import BLOCK_SIZE, MB, fsync, standard_vdo, wait_for_index
+from dmtest.vdo.utils import BLOCK_SIZE, MB, fsync, standard_vdo, wait_for_index, wait_until_packer_only
 import dmtest.process as process
-
-import logging as log
-import time
-
-def wait_until_packer_only(vdo):
-    """Waits until all the I/Os being processed by a VDO device are
-    completed or waiting in the packer.
-
-    Returns VDO stats collected after waiting. (dict, see vdo_stats)
-
-    """
-    while True:
-        stats = vdo_stats(vdo)
-        if stats['currentVIOsInProgress'] == stats['packer']['compressedFragmentsInPacker']:
-            # We're done
-            return stats
-        time.sleep(0.001)
 
 def t_compress(fix):
     size = 4 * MB

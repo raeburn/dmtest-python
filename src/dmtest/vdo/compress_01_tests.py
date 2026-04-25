@@ -6,13 +6,12 @@ verify complete deduplication, and finally trims all data to verify that
 compressed blocks are properly reclaimed.
 """
 
+import logging as log
+
 from dmtest.assertions import assert_equal, assert_near
 from dmtest.gendatablocks import make_block_range
 from dmtest.vdo.stats import vdo_stats
-from dmtest.vdo.utils import BLOCK_SIZE, fsync, standard_vdo, wait_for_index
-from dmtest.vdo.compress_tests import wait_until_packer_only
-
-import logging as log
+from dmtest.vdo.utils import BLOCK_SIZE, fsync, standard_vdo, wait_for_index, wait_until_packer_only
 
 def testBasic(fix):
     """Basic VDO testing with compressible data"""

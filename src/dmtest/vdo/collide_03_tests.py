@@ -9,7 +9,7 @@ import logging as log
 import os
 
 from dmtest.assertions import assert_equal
-from dmtest.vdo.utils import BLOCK_SIZE, standard_vdo
+from dmtest.vdo.utils import BLOCK_SIZE, standard_vdo, wait_until_packer_only
 from dmtest.vdo.murmur3collide import generate_colliding_blocks
 import dmtest.process as process
 import dmtest.vdo.stats as stats
@@ -119,22 +119,6 @@ def _verify_chained_colliding_blocks(base_path: str,
     log.info(f"Successfully verified {block_count} chained colliding blocks")
 
 
-def _wait_until_packer_only(vdo):
-    """Wait until all VDO I/Os are completed or waiting in the packer.
-
-    Returns VDO stats collected after waiting.
-    """
-    import time
-    while True:
-        current_stats = stats.vdo_stats(vdo)
-        working_blocks = (current_stats['currentVIOsInProgress']
-                         - current_stats['packer']['compressedFragmentsInPacker'])
-        if working_blocks == 0:
-            return current_stats
-        log.info(f"{working_blocks} blocks have not gotten to the packer yet")
-        time.sleep(0.1)
-
-
 def t_compressing_collisions(fix) -> None:
     """Test VDO hash collisions with highly compressible data.
 
@@ -176,7 +160,7 @@ def t_compressing_collisions(fix) -> None:
 
         # Wait for all blocks to reach the packer
         log.info("Waiting for all blocks to reach the packer")
-        packer_stats = _wait_until_packer_only(vdo)
+        packer_stats = wait_until_packer_only(vdo)
         log.info(f"Packer contains {packer_stats['packer']['compressedFragmentsInPacker']} fragments")
 
         # Flush the packer and get final statistics

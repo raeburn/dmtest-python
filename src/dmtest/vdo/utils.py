@@ -58,6 +58,29 @@ def wait_for_index(dev):
     if status.vdo_status(dev)["index-state"] != "online":
         raise AssertionError("VDO not online within 30 seconds")
 
+
+def wait_until_packer_only(vdo):
+    """Wait until all I/Os are completed or waiting in the packer.
+
+    When testing VDO compression, this function ensures predictable
+    compression ratios by waiting for all I/Os to either complete or
+    reach the packer stage before flushing. I/Os still in earlier
+    processing stages (e.g., deduplication) may be written uncompressed
+    if fsync is called too early.
+
+    Args:
+        vdo: VDO device object
+
+    Returns:
+        VDO statistics dict collected after waiting
+    """
+    while True:
+        vdo_stats = stats.vdo_stats(vdo)
+        if vdo_stats['currentVIOsInProgress'] == vdo_stats['packer']['compressedFragmentsInPacker']:
+            return vdo_stats
+        time.sleep(0.001)
+
+
 def fsync(dev):
     """Sync the specified device or file."""
     with open(dev, 'w') as thing:
