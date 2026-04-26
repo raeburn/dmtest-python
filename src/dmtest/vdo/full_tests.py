@@ -9,7 +9,7 @@ import dmtest.tvm as tvm
 import dmtest.units as units
 import dmtest.vdo.stats as stats
 from dmtest.vdo.stats import get_free_blocks
-from dmtest.vdo.utils import MB, GB, populate_block_map
+from dmtest.vdo.utils import MB, GB, populate_block_map, settle_devices
 import dmtest.vdo.vdo_stack as vs
 
 def t_full(fix):
@@ -69,7 +69,7 @@ def t_full(fix):
             # we verify.
             range5.trim()
             # Writing new data should fail
-            process.run("udevadm settle")
+            settle_devices()
             gave_error = False
             try:
                 range5.write(tag="tag3", fsync=True)
@@ -87,7 +87,7 @@ def t_full(fix):
             # The write failed, so range5 will not have updated its
             # idea of the data we should find there; it still expects
             # zero blocks.
-            process.run("udevadm settle")
+            settle_devices()
             range1.verify()
             range2.verify()
             range3.verify()

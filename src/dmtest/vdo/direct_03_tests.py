@@ -6,7 +6,7 @@ import time
 
 from dmtest.assertions import assert_equal
 from dmtest.gendatablocks import make_block_range
-from dmtest.vdo.utils import BLOCK_SIZE, standard_vdo
+from dmtest.vdo.utils import BLOCK_SIZE, standard_vdo, settle_devices
 import dmtest.process as process
 import dmtest.vdo.stats as stats
 
@@ -44,7 +44,7 @@ def t_discard_blocks(fix) -> None:
     block_count = 1024
 
     with standard_vdo(fix) as vdo:
-        process.run("udevadm settle")
+        settle_devices()
 
         # Verify initial state
         initial_stats = stats.vdo_stats(vdo)
@@ -97,7 +97,7 @@ def t_discard_duplicated_blocks(fix) -> None:
     block_count = 1024
 
     with standard_vdo(fix) as vdo:
-        process.run("udevadm settle")
+        settle_devices()
 
         # Verify initial state
         initial_stats = stats.vdo_stats(vdo)
@@ -176,7 +176,7 @@ def t_discard_with_holes(fix) -> None:
     block_count = 1024
 
     with standard_vdo(fix) as vdo:
-        process.run("udevadm settle")
+        settle_devices()
 
         # Verify initial state
         initial_stats = stats.vdo_stats(vdo)

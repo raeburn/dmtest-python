@@ -6,7 +6,7 @@ from dmtest.gendatablocks import make_block_range
 import dmtest.process as process
 import dmtest.tvm as tvm
 import dmtest.units as units
-from dmtest.vdo.utils import MB, GB
+from dmtest.vdo.utils import MB, GB, settle_devices
 import dmtest.vdo.vdo_stack as vs
 import dmtest.vdo.stats as stats
 from dmtest.vdo.stats import get_free_blocks, get_usable_data_blocks
@@ -68,7 +68,7 @@ def t_no_space(fix):
                 log.info(f"Got expected error while filling device: {e}")
 
             # Sync to ensure all pending writes are processed
-            process.run("udevadm settle")
+            settle_devices()
 
             # Get statistics after filling
             filled_stats = stats.vdo_stats(vdo)
@@ -110,7 +110,7 @@ def t_no_space(fix):
                 raise AssertionError("writing to full VDO should fail")
 
             # Verify statistics haven't changed after the failed write
-            process.run("udevadm settle")
+            settle_devices()
             final_stats = stats.vdo_stats(vdo)
 
             assert_equal(final_stats["physicalBlocks"], expected_stats["physicalBlocks"])

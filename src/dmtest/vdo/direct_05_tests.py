@@ -4,7 +4,7 @@ VDO Direct05 test - Deduplication of data being overwritten
 import logging as log
 
 from dmtest.gendatablocks import make_block_range
-from dmtest.vdo.utils import BLOCK_SIZE, standard_vdo
+from dmtest.vdo.utils import BLOCK_SIZE, standard_vdo, settle_devices
 import dmtest.process as process
 
 
@@ -21,7 +21,7 @@ def t_direct_05(fix) -> None:
 
     with standard_vdo(fix, slab_bits=17) as vdo:
         # Wait for udev to settle
-        process.run("udevadm settle")
+        settle_devices()
 
         # First write and verify: 1000 blocks at offset 0
         log.info(f"First write: {block_count} blocks at offset 0")

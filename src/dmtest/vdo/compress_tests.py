@@ -3,7 +3,7 @@ import logging as log
 from dmtest.assertions import assert_equal, assert_near
 from dmtest.gendatablocks import make_block_range
 from dmtest.vdo.stats import vdo_stats
-from dmtest.vdo.utils import BLOCK_SIZE, MB, fsync, standard_vdo, wait_for_index, wait_until_packer_only
+from dmtest.vdo.utils import BLOCK_SIZE, MB, fsync, standard_vdo, wait_for_index, wait_until_packer_only, settle_devices
 import dmtest.process as process
 
 def t_compress(fix):
@@ -15,7 +15,7 @@ def t_compress(fix):
         range2 = make_block_range(path=vdo.path, block_size=BLOCK_SIZE,
                                   block_count=size_in_blocks,
                                   offset=size_in_blocks)
-        process.run("udevadm settle")
+        settle_devices()
         stats = vdo_stats(vdo)
         assert_equal(stats['dataBlocksUsed'], 0, 'data blocks used (init)')
         assert_equal(stats['hashLock']['dedupeAdviceValid'], 0,

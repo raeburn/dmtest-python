@@ -7,7 +7,7 @@ import time
 
 from dmtest.assertions import assert_string_in
 from dmtest.utils import get_dmesg_log
-from dmtest.vdo.utils import standard_stack
+from dmtest.vdo.utils import standard_stack, settle_devices
 import dmtest.process as process
 
 
@@ -32,7 +32,7 @@ def t_create_03(fix) -> None:
         vdo = stack.activate()
 
         # Wait for udev to settle
-        process.run("udevadm settle")
+        settle_devices()
 
         # After first iteration, check kernel logs
         if i > 0:

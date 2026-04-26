@@ -13,7 +13,7 @@ import threading
 from dmtest.fs import Ext4
 from dmtest.gendatablocks import make_block_range
 import dmtest.process as process
-from dmtest.vdo.utils import standard_vdo, GB, fsync
+from dmtest.vdo.utils import standard_vdo, GB, fsync, settle_devices
 
 
 def t_dual(fix) -> None:
@@ -53,7 +53,7 @@ def t_dual(fix) -> None:
             generate_path = f"/dev/{vg_name}/{generate_lv_name}"
 
             # Wait for device nodes to appear
-            process.run("udevadm settle")
+            settle_devices()
 
             # Format filesystem on generate LV
             log.info(f"Creating ext4 filesystem on {generate_path}")

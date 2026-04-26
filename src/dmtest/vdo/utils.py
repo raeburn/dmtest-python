@@ -86,6 +86,19 @@ def fsync(dev):
     with open(dev, 'w') as thing:
         os.fsync(thing.fileno())
 
+
+def settle_devices():
+    """Wait for udev to process all pending device events.
+
+    Should be called after:
+    - VDO device creation (before first I/O)
+    - dmsetup operations that create or modify devices
+
+    Not needed between normal read/write operations.
+    """
+    process.run("udevadm settle")
+
+
 def run_fio_with_config(fio_config, raise_on_fail=True):
     """Run fio with the specified config file content.
 
