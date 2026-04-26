@@ -5,9 +5,4 @@ def t_create(fix):
         pass
 
 def register(tests):
-    tests.register_batch(
-        "/vdo/creation",
-        [
-            ("create01", t_create),
-        ],
-    )
+    tests.register("/vdo/creation/create01", t_create)

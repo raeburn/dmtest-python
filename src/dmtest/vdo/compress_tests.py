@@ -95,9 +95,4 @@ def t_compress(fix):
                      'data blocks used (discard)')
 
 def register(tests):
-    tests.register_batch(
-        "/vdo/compress/",
-        [
-            ("compress", t_compress),
-        ],
-    )
+    tests.register("/vdo/compress/compress", t_compress)
