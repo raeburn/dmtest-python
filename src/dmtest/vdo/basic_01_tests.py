@@ -1,3 +1,8 @@
+"""VDO basic functional test.
+
+Verifies VDO persistence by writing data to a filesystem on VDO, stopping
+the VDO device, restarting it, and verifying the data is still readable.
+"""
 from dmtest.assertions import assert_equal, assert_string_in
 from dmtest.fs import Ext4
 from dmtest.utils import get_dmesg_log
