@@ -127,9 +127,4 @@ def t_no_space(fix):
             # blocks were acknowledged before the fsync error.
 
 def register(tests):
-    tests.register_batch(
-        "/vdo/full",
-        [
-            ("full01", t_no_space),
-        ],
-    )
+    tests.register("/vdo/full/full01", t_no_space)
