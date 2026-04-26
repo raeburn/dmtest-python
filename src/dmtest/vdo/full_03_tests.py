@@ -1,3 +1,9 @@
+"""VDO out-of-space stress test with iterative writes and trims.
+
+Stress tests VDO behavior when running out of physical space by performing
+10 iterations of parallel writes with random dedupe/compress ratios, then
+verifying and randomly trimming 50% of slices to test space reclamation.
+"""
 import logging as log
 import random
 import threading
