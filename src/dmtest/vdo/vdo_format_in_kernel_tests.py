@@ -1,3 +1,9 @@
+"""VDO kernel formatting tests.
+
+Tests VDO's kernel-based formatting feature (VDO 9.2.0+) which allows formatting
+VDO volumes via dmsetup table parameters. Validates parameter checking, minimum
+size calculation, and formatting on dirty storage.
+"""
 import logging as log
 import time
 
