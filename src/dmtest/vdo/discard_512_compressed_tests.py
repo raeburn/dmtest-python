@@ -1,3 +1,9 @@
+"""VDO discard test with 512-byte emulation and compression.
+
+Tests TRIM/discard operations at 512-byte granularity on compressed data,
+verifying that VDO correctly handles partial and full block discards while
+maintaining 4KB internal block management and compressed storage.
+"""
 import logging as log
 import os
 import tempfile
