@@ -1,3 +1,9 @@
+"""VDO backing device swap test.
+
+Tests VDO's ability to switch its backing storage device while suspended,
+copying data from the old device to the new one, and continuing normal
+operations including deduplication after the swap.
+"""
 import logging as log
 import tempfile
 
