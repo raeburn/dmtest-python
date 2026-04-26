@@ -1,3 +1,8 @@
+"""VDO dmsetup operations tests.
+
+Tests dmsetup command operations including status, table, and config queries,
+verifying that VDO reports correct information and handles messages properly.
+"""
 import logging as log
 import re
 import yaml
