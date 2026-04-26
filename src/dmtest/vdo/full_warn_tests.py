@@ -1,3 +1,8 @@
+"""VDO full device status reporting test.
+
+Tests that VDO correctly reports device-full status through both VDO
+statistics and dmsetup status output when physical space is exhausted.
+"""
 import logging as log
 
 from dmtest.assertions import assert_equal
