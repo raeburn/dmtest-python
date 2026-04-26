@@ -1,3 +1,9 @@
+"""VDO in-flight deduplication test.
+
+Tests VDO's ability to deduplicate data that is in flight simultaneously
+by writing an alternating pattern of two unique 4K blocks and verifying
+correct deduplication and compression packing behavior.
+"""
 import logging as log
 import os
 import tempfile
