@@ -13,7 +13,7 @@ from dmtest.gendatablocks import make_block_range
 from dmtest.vdo.stats import vdo_stats
 from dmtest.vdo.utils import BLOCK_SIZE, fsync, standard_vdo, wait_for_index, wait_until_packer_only
 
-def testBasic(fix):
+def t_basic(fix):
     """Basic VDO testing with compressible data"""
     block_count = 5000
 
@@ -80,9 +80,4 @@ def testBasic(fix):
                      'Data blocks used should be zero after trim')
 
 def register(tests):
-    tests.register_batch(
-        "/vdo/compress_01/",
-        [
-            ("basic", testBasic),
-        ],
-    )
+    tests.register("/vdo/compress_01/basic", t_basic)
