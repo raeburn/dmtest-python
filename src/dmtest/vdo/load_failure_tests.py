@@ -1,3 +1,9 @@
+"""VDO load failure tests.
+
+Tests VDO device creation failures including invalid configuration parameters
+(thread counts, zone counts) and corrupted geometry blocks, verifying proper
+error reporting.
+"""
 from dmtest.assertions import assert_matches, assert_string_in
 from dmtest.vdo.utils import standard_vdo, standard_stack
 from dmtest.utils import get_dmesg_log, trash_device
