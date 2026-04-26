@@ -1,3 +1,9 @@
+"""VDO out-of-space test using page cache I/O.
+
+Tests VDO behavior when running out of physical space using page cache I/O
+instead of direct I/O. Errors occur during sync rather than write, and some
+blocks may read as zeros when space is exhausted.
+"""
 import logging as log
 import threading
 
