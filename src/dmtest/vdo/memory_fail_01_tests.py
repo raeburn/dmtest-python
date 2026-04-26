@@ -1,3 +1,9 @@
+"""VDO memory allocation failure test.
+
+Tests VDO robustness during startup when memory allocations fail, verifying
+proper error handling and checking for memory leaks. Requires kvdo module
+with memory fault injection sysfs interface.
+"""
 import logging as log
 
 from dmtest.assertions import assert_equal
