@@ -7,7 +7,7 @@ import tempfile
 import shutil
 from concurrent.futures import ThreadPoolExecutor, as_completed
 
-from dmtest.assertions import assert_equal, assert_near
+from dmtest.assertions import assert_equal
 from dmtest.fs import Ext4
 from dmtest.vdo.utils import standard_vdo
 from dmtest.vdo.dataset_helpers import write_file_dataset, verify_file_dataset
