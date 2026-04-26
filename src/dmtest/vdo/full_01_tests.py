@@ -1,3 +1,9 @@
+"""VDO out-of-space behavior test.
+
+Tests system behavior when VDO runs out of physical space, verifying that
+ENOSPC errors are produced predictably and device statistics remain
+consistent after failed writes.
+"""
 import logging as log
 
 from dmtest.assertions import assert_equal
