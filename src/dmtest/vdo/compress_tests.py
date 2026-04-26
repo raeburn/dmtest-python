@@ -1,3 +1,9 @@
+"""VDO compression tests.
+
+Tests VDO's compression functionality including writing compressible data,
+verifying compression ratios, and ensuring deduplication works correctly
+against compressed blocks.
+"""
 import logging as log
 
 from dmtest.assertions import assert_equal, assert_near
