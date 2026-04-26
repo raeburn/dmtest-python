@@ -72,9 +72,4 @@ def t_basic(fix):
     assert_string_in(log_message, "VDO commencing normal operation")
 
 def register(tests):
-    tests.register_batch(
-        "/vdo/basic",
-        [
-            ("basic01", t_basic),
-        ],
-    )
+    tests.register("/vdo/basic/basic01", t_basic)
