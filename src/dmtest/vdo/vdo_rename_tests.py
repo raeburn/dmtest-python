@@ -1,3 +1,8 @@
+"""VDO device rename test.
+
+Tests VDO device renaming using dmsetup rename, verifying the device
+continues to function correctly after being renamed and renamed back.
+"""
 import logging as log
 
 import dmtest.device_mapper.dev as dmdev
