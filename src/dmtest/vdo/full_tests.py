@@ -1,3 +1,8 @@
+"""VDO filling and space management test.
+
+Tests VDO device filling, deduplication of data on a full device, and space
+reclamation via discard operations. Verifies free space tracking at each step.
+"""
 from dmtest.assertions import assert_equal
 import dmtest.device_mapper.dev as dmdev
 from dmtest.gendatablocks import make_block_range
