@@ -1,3 +1,9 @@
+"""VDO zero block optimization tests.
+
+Tests VDO's optimization for zero blocks, verifying that writing and reading
+zeros consumes no physical storage (both direct I/O and filesystem operations).
+Also tests discard operations.
+"""
 import logging as log
 import os
 import tempfile
