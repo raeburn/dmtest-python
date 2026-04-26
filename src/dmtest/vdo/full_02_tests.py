@@ -1,3 +1,9 @@
+"""VDO out-of-space with parallel writes test.
+
+Tests VDO behavior when running out of physical space with parallel writes
+to multiple non-overlapping slices, using various dedupe and compression
+rates. Verifies data integrity for all successfully written blocks.
+"""
 import logging as log
 import threading
 
