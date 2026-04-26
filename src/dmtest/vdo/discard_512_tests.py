@@ -1,3 +1,9 @@
+"""VDO discard test with 512-byte emulation.
+
+Tests TRIM/discard operations at 512-byte granularity while VDO maintains
+4KB internal blocks. Verifies that logical block accounting correctly tracks
+fully vs. partially discarded blocks across all sector alignments.
+"""
 import logging as log
 import tempfile
 
