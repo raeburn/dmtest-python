@@ -1,3 +1,5 @@
+import re
+
 def assert_raises(callback):
     failed = False
     try:
@@ -27,4 +29,10 @@ def assert_string_in(actual, expected, message=None):
     if expected not in actual:
         error_message = f"{message}: " if message else ""
         error_message += f"expected '{expected}', but got {actual}"
+        raise AssertionError(error_message)
+
+def assert_matches(actual, pattern, message=None):
+    if not re.search(pattern, actual):
+        error_message = f"{message}: " if message else ""
+        error_message += f"expected match for '{pattern}', but got {actual}"
         raise AssertionError(error_message)
