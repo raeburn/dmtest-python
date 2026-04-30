@@ -24,7 +24,7 @@ TRACK_ALLOCATIONS = "/sys/uds/memory/track_allocations"
 # Maximum number of allocation failure injection passes to test.
 # Set to None to test all allocations exhaustively (no cap).
 # The Perl version tests exhaustively; we default to 30 to limit test duration.
-MAX_ALLOCATION_FAILURE_PASSES = 30
+MAX_ALLOCATION_FAILURE_PASSES = 3000
 
 
 def read_sysfs_int(path: str) -> int:
