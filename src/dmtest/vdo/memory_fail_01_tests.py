@@ -75,6 +75,10 @@ def t_memory_fail_start(fix) -> None:
     Systematically injects memory allocation failures at each position during
     VDO device initialization to verify proper error handling and no memory leaks.
     This test is capped at 30 injection passes (vs exhaustive testing in Perl).
+
+    The test also measures and logs the total number of memory allocations required
+    for successful VDO device startup by detecting when an allocation failure at
+    position N doesn't trigger (meaning startup completed with fewer than N allocations).
     """
     log.info("Creating and formatting VDO device")
 
@@ -126,7 +130,11 @@ def t_memory_fail_start(fix) -> None:
         # Check if the scheduled allocation failure actually occurred
         if is_allocation_failure_pending():
             # Allocation failure didn't trigger - we've exhausted all allocations
+            # Read the actual number of allocations that occurred during startup
+            actual_allocations = read_sysfs_int(ALLOC_COUNTER)
             log.info(f"Allocation failure #{pass_num} did not trigger - startup needs fewer allocations")
+            log.info(f"VDO device startup required {actual_allocations} allocations")
+
             cancel_allocation_failure()
             track_allocations(False)
 
@@ -147,7 +155,7 @@ def t_memory_fail_start(fix) -> None:
             # Clean up and finish
             if vdo:
                 vdo.__exit__(None, None, None)
-            log.info("Test complete - all allocations tested")
+            log.info(f"Test complete - all {actual_allocations} allocations tested")
             break
 
         # Allocation failure did occur
@@ -169,7 +177,10 @@ def t_memory_fail_start(fix) -> None:
         log.info(f"Pass {pass_num} complete - no memory leak detected")
     else:
         # Reached max_passes without completing all allocations
-        log.info(f"Test capped at {max_passes} passes - device requires more allocations to start")
+        # Read current allocation counter to show progress
+        current_allocations = read_sysfs_int(ALLOC_COUNTER)
+        log.info(f"Test capped at {max_passes} passes - device requires more than {max_passes} allocations to start")
+        log.info(f"Note: At least {current_allocations} allocations observed during last start attempt")
 
 
 def register(tests):
