@@ -21,6 +21,11 @@ LOG_ALLOCATIONS = "/sys/uds/memory/log_allocations"
 SCHEDULE_ALLOC_FAILURE = "/sys/uds/memory/schedule_allocation_failure"
 TRACK_ALLOCATIONS = "/sys/uds/memory/track_allocations"
 
+# Maximum number of allocation failure injection passes to test.
+# Set to None to test all allocations exhaustively (no cap).
+# The Perl version tests exhaustively; we default to 30 to limit test duration.
+MAX_ALLOCATION_FAILURE_PASSES = 30
+
 
 def read_sysfs_int(path: str) -> int:
     """Read an integer value from a sysfs file."""
@@ -74,7 +79,11 @@ def t_memory_fail_start(fix) -> None:
 
     Systematically injects memory allocation failures at each position during
     VDO device initialization to verify proper error handling and no memory leaks.
-    This test is capped at 30 injection passes (vs exhaustive testing in Perl).
+
+    The number of injection passes is controlled by MAX_ALLOCATION_FAILURE_PASSES.
+    If set to None, the test runs exhaustively until all allocations are tested
+    (matching the Perl version's behavior). If set to a number, the test is capped
+    at that many passes.
 
     The test also measures and logs the total number of memory allocations required
     for successful VDO device startup by detecting when an allocation failure at
@@ -98,9 +107,11 @@ def t_memory_fail_start(fix) -> None:
     assert_equal(allocation_overhead, get_bytes_used(), "Memory leak during start+stop")
 
     # Main test loop: inject allocation failures at each position
-    max_passes = 30  # Capped as requested
-
-    for pass_num in range(1, max_passes + 1):
+    pass_num = 1
+    while True:
+        # Check if we've hit the cap (if one is configured)
+        if MAX_ALLOCATION_FAILURE_PASSES is not None and pass_num > MAX_ALLOCATION_FAILURE_PASSES:
+            break
         log.info(f"=== Pass {pass_num}: Failing allocation #{pass_num} ===")
 
         # Schedule allocation failure at position pass_num
@@ -175,11 +186,15 @@ def t_memory_fail_start(fix) -> None:
             raise AssertionError(f"Memory leak in pass {pass_num}: {leak_size} bytes leaked")
 
         log.info(f"Pass {pass_num} complete - no memory leak detected")
-    else:
-        # Reached max_passes without completing all allocations
+
+        # Move to next allocation position
+        pass_num += 1
+
+    # If we get here, we hit the cap without completing all allocations
+    if MAX_ALLOCATION_FAILURE_PASSES is not None:
         # Read current allocation counter to show progress
         current_allocations = read_sysfs_int(ALLOC_COUNTER)
-        log.info(f"Test capped at {max_passes} passes - device requires more than {max_passes} allocations to start")
+        log.info(f"Test capped at {MAX_ALLOCATION_FAILURE_PASSES} passes - device requires more than {MAX_ALLOCATION_FAILURE_PASSES} allocations to start")
         log.info(f"Note: At least {current_allocations} allocations observed during last start attempt")
 
 
