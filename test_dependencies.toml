@@ -471,8 +471,8 @@ executables = [ "blockdev", "dmsetup", "vdoformat",]
 targets = [ "linear", "vdo",]
 
 ["/vdo/instance/multiple-instances"]
-executables = [ "blockdev", "dmsetup", "losetup", "truncate", "vdoformat",]
-targets = [ "vdo",]
+executables = [ "blockdev", "dmsetup", "vdoformat",]
+targets = [ "linear", "vdo",]
 
 ["/vdo/full/full-warn"]
 executables = [ "blockdev", "dmsetup", "udevadm", "vdoformat",]
