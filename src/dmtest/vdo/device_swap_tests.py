@@ -14,6 +14,7 @@ from dmtest.device_mapper.targets import LinearTarget, VDOTarget
 from dmtest.gendatablocks import make_block_range
 from dmtest.process import run
 from dmtest.utils import dev_size
+from dmtest.vdo.stats import vdo_stats
 from dmtest.vdo.utils import BLOCK_SIZE, GB, wait_for_index
 
 
@@ -125,7 +126,6 @@ def t_device_switch(fix) -> None:
             stats_output = run(f"dmsetup status {vdo.name}", raise_on_fail=True)[1]
             log.info(f"VDO status: {stats_output}")
 
-            from dmtest.vdo.stats import vdo_stats
             stats = vdo_stats(vdo)
 
             data_blocks_used = stats['dataBlocksUsed']
