@@ -6,6 +6,7 @@ its logical size when the device table specifies a larger size than what is
 stored in the VDO superblock.
 """
 import logging as log
+import os
 
 from dmtest.assertions import assert_equal
 from dmtest.vdo.utils import standard_vdo, GB
@@ -39,7 +40,6 @@ def write_and_verify_at_end(vdo, logical_size, tag: str) -> None:
         f.seek(offset)
         f.write(test_data)
         f.flush()
-        import os
         os.fsync(f.fileno())
 
     # Verify the data
