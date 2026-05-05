@@ -5,8 +5,10 @@ proper error handling and checking for memory leaks. Requires kvdo module
 with memory fault injection sysfs interface.
 """
 import logging as log
+import os
 
 from dmtest.assertions import assert_equal
+from dmtest.test_register import MissingTestDep
 from dmtest.vdo.utils import standard_vdo
 from dmtest.vdo.status import vdo_status
 import dmtest.process as process
@@ -72,6 +74,20 @@ def log_allocations() -> None:
     """Log currently tracked allocations to kernel log (if tracking enabled)."""
     # Only used for debugging, not enabled in standard test runs
     pass
+
+
+def check_kvdo_memory_interface():
+    """Check for kvdo memory fault injection sysfs interface.
+
+    Raises MissingTestDep if /sys/uds/memory directory doesn't exist,
+    which indicates the development kvdo module with memory fault injection
+    is not loaded.
+    """
+    if not os.path.isdir("/sys/uds/memory"):
+        raise MissingTestDep(
+            "kvdo module with memory fault injection support "
+            "(/sys/uds/memory not found)"
+        )
 
 
 def t_memory_fail_start(fix) -> None:
@@ -199,4 +215,4 @@ def t_memory_fail_start(fix) -> None:
 
 
 def register(tests):
-    tests.register("/vdo/memory-fail/start", t_memory_fail_start)
+    tests.register("/vdo/memory-fail/start", t_memory_fail_start, check_kvdo_memory_interface)
