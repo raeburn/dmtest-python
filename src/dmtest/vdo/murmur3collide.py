@@ -16,6 +16,7 @@ the same hash. The operation is an involution: applying it twice to the same
 chunk restores the original data (since XOR in k-space is self-inverse).
 """
 
+import os
 import struct
 from typing import Optional, Sequence
 
@@ -266,8 +267,6 @@ def generate_colliding_blocks(base_block: bytes,
 
 
 if __name__ == "__main__":
-    import os
-
     # Verify hash implementation against known test vectors from the C tests.
     text = b"The quick brown fox jumps over the lazy dog"
     h1, h2 = murmurhash3_128(text, seed=0)
