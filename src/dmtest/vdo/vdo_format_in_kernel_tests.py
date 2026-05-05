@@ -9,7 +9,7 @@ import time
 
 from dmtest.assertions import assert_string_in
 from dmtest.utils import get_dmesg_log, dev_size, wipe_device
-from dmtest.vdo.utils import wait_for_index
+from dmtest.vdo.utils import wait_for_index, vdo_min_version
 import dmtest.device_mapper.dev as dmdev
 import dmtest.device_mapper.table as table
 import dmtest.device_mapper.targets as targets
@@ -348,8 +348,12 @@ def t_dirty_storage(fix) -> None:
 
 
 def register(tests):
-    tests.register_batch("/vdo/format-in-kernel/", [
-        ("options", t_options),
-        ("minimum-size", t_minimum_size),
-        ("dirty-storage", t_dirty_storage),
-    ])
+    tests.register_batch(
+        "/vdo/format-in-kernel/",
+        [
+            ("options", t_options),
+            ("minimum-size", t_minimum_size),
+            ("dirty-storage", t_dirty_storage),
+        ],
+        vdo_min_version("9.2.0")
+    )
