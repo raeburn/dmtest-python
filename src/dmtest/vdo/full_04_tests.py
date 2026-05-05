@@ -5,6 +5,7 @@ instead of direct I/O. Errors occur during sync rather than write, and some
 blocks may read as zeros when space is exhausted.
 """
 import logging as log
+import os
 import threading
 
 import dmtest.device_mapper.dev as dmdev
@@ -28,7 +29,6 @@ def sync_device_ignoring_errors(device_path):
     for retry in range(10):
         try:
             with open(device_path, "r+b") as f:
-                import os
                 os.fsync(f.fileno())
             return
         except OSError as e:
