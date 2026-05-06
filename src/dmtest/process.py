@@ -33,6 +33,6 @@ def run(command, raise_on_fail=True):
         log.info(f"return code: {proc.returncode}")
     return_code = proc.returncode
     if return_code and raise_on_fail:
-        log.error("process failed unexpectedly, raising exception")
+        log.error(f"process '{command}' failed with exit status {return_code}, raising exception")
         raise subprocess.CalledProcessError(return_code, command)
     return (return_code, stdout.strip(), stderr.strip())

@@ -25,7 +25,7 @@ TRACK_ALLOCATIONS = "/sys/uds/memory/track_allocations"
 
 # Maximum number of allocation failure injection passes to test.
 # Set to None to test all allocations exhaustively (no cap).
-# The Perl version tests exhaustively; we default to 30 to limit test duration.
+# The Perl version tests exhaustively; we default to 3000 to limit test duration.
 MAX_ALLOCATION_FAILURE_PASSES = 3000
 
 
@@ -134,10 +134,14 @@ def t_memory_fail_start(fix) -> None:
         schedule_allocation_failure(pass_num)
         track_allocations(True)
 
+        # Record allocation counter before start attempt
+        alloc_count_before = read_sysfs_int(ALLOC_COUNTER)
+
         # Attempt to start the VDO device
         start_error = None
         vdo_mode = None
         vdo = None
+        status = None
 
         try:
             vdo = standard_vdo(fix, format=False).__enter__()
@@ -157,8 +161,9 @@ def t_memory_fail_start(fix) -> None:
         # Check if the scheduled allocation failure actually occurred
         if is_allocation_failure_pending():
             # Allocation failure didn't trigger - we've exhausted all allocations
-            # Read the actual number of allocations that occurred during startup
-            actual_allocations = read_sysfs_int(ALLOC_COUNTER)
+            # Calculate the actual number of allocations that occurred during startup
+            alloc_count_after = read_sysfs_int(ALLOC_COUNTER)
+            actual_allocations = alloc_count_after - alloc_count_before
             log.info(f"Allocation failure #{pass_num} did not trigger - startup needs fewer allocations")
             log.info(f"VDO device startup required {actual_allocations} allocations")
 
@@ -172,7 +177,7 @@ def t_memory_fail_start(fix) -> None:
                 raise AssertionError(f"VDO should have started successfully but got: {start_error}")
 
             # Verify VDO is online (unless in read-only mode)
-            if vdo_mode != "read-only":
+            if vdo_mode != "read-only" and status is not None:
                 index_state = status["index-state"]
                 if index_state not in ["online", "opening"]:
                     if vdo:
@@ -208,10 +213,7 @@ def t_memory_fail_start(fix) -> None:
 
     # If we get here, we hit the cap without completing all allocations
     if MAX_ALLOCATION_FAILURE_PASSES is not None:
-        # Read current allocation counter to show progress
-        current_allocations = read_sysfs_int(ALLOC_COUNTER)
         log.info(f"Test capped at {MAX_ALLOCATION_FAILURE_PASSES} passes - device requires more than {MAX_ALLOCATION_FAILURE_PASSES} allocations to start")
-        log.info(f"Note: At least {current_allocations} allocations observed during last start attempt")
 
 
 def register(tests):
