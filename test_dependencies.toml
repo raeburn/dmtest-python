@@ -545,3 +545,7 @@ targets = [ "linear", "vdo",]
 ["/vdo/memory-fail/start"]
 executables = [ "blockdev", "dmsetup", "vdoformat",]
 targets = [ "vdo",]
+
+["/vdo/zero/discard"]
+executables = [ "blkdiscard", "blockdev", "dmsetup", "echo", "sync", "vdoformat",]
+targets = [ "vdo",]

@@ -108,7 +108,7 @@ def t_discard(fix) -> None:
         # Use blkdiscard to trim the device
         data_size = block_count * BLOCK_SIZE
         process.run(f"blkdiscard -l {data_size} {vdo.path}")
-        process.run("sync -d {vdo.path}")
+        process.run(f"sync -d {vdo.path}")
 
         assert_no_blocks_used(vdo, "after discard")
 
