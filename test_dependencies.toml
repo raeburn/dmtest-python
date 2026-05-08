@@ -491,7 +491,7 @@ executables = [ "blockdev", "cat", "dmsetup", "echo", "vdoformat",]
 targets = [ "vdo",]
 
 ["/vdo/sysfs/length-check"]
-executables = [ "blockdev", "cat", "dmsetup", "echo", "vdoformat",]
+executables = [ "blockdev", "dmsetup", "vdoformat",]
 targets = [ "vdo",]
 
 ["/vdo/dual/dual-01"]
