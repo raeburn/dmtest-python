@@ -1,5 +1,6 @@
 import argparse
 import dmtest.bufio.bufio_tests as bufio
+import dmtest.delay.delay_tests as delay
 import dmtest.db as db
 import dmtest.fixture
 import dmtest.test_register as test_register
@@ -615,6 +616,7 @@ def main():
     thin_register.register(tests)
     thin_migrate_register.register(tests)
     bufio.register(tests)
+    delay.register(tests)
     vdo_register.register(tests)
 
     try:

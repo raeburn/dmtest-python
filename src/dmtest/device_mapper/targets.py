@@ -10,6 +10,28 @@ class Target:
     def post_remove_check(self):
         pass
 
+class DelayTarget(Target):
+    def __init__(
+        self,
+        sector_count,
+        dev,
+        offset,
+        delay_ms,
+        write_dev=None,
+        write_offset=None,
+        write_delay=None,
+        flush_dev=None,
+        flush_offset=None,
+        flush_delay=None,
+    ):
+        args = [dev, offset, delay_ms]
+        if write_dev is not None:
+            args += [write_dev, write_offset, write_delay]
+            if flush_dev is not None:
+                args += [flush_dev, flush_offset, flush_delay]
+        super().__init__("delay", sector_count, *args)
+
+
 class ErrorTarget(Target):
     def __init__(self, sector_count):
         super().__init__("error", sector_count)

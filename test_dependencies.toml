@@ -553,3 +553,39 @@ targets = [ "vdo",]
 ["/vdo/uds-timeout/timeout"]
 executables = [ "blockdev", "dmsetup", "udevadm", "vdoformat",]
 targets = [ "delay", "vdo",]
+
+["/delay/create-and-integrity"]
+executables = [ "cmp", "dd", "dmsetup",]
+targets = [ "delay",]
+
+["/delay/read-delay"]
+executables = [ "dd", "dmsetup",]
+targets = [ "delay",]
+
+["/delay/write-delay"]
+executables = [ "dd", "dmsetup",]
+targets = [ "delay",]
+
+["/delay/asymmetric-rw"]
+executables = [ "dd", "dmsetup",]
+targets = [ "delay",]
+
+["/delay/concurrent-io"]
+executables = [ "dmsetup", "fio",]
+targets = [ "delay",]
+
+["/delay/flush-delay"]
+executables = [ "dd", "dmsetup",]
+targets = [ "delay",]
+
+["/delay/separate-devices"]
+executables = [ "blockdev", "cmp", "dd", "dmsetup",]
+targets = [ "delay", "linear",]
+
+["/delay/table-reload"]
+executables = [ "dd", "dmsetup",]
+targets = [ "delay",]
+
+["/delay/large-delay"]
+executables = [ "dd", "dmsetup",]
+targets = [ "delay",]
