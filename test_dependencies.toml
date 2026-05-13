@@ -549,3 +549,7 @@ targets = [ "vdo",]
 ["/vdo/zero/discard"]
 executables = [ "blkdiscard", "blockdev", "dmsetup", "echo", "sync", "vdoformat",]
 targets = [ "vdo",]
+
+["/vdo/uds-timeout/timeout"]
+executables = [ "blockdev", "dmsetup", "udevadm", "vdoformat",]
+targets = [ "delay", "vdo",]
