@@ -59,6 +59,26 @@ def t_bad_values(fix):
     # achievable with current kernel validation logic.
 
 
+def t_mixed_zone_counts(fix):
+    # Logical, physical, and hash zone counts must all be zero or all nonzero.
+    # Test every combination where some are zero and some are not.
+    error_msg = "Logical, physical, and hash zones counts must all be zero or all non-zero"
+
+    with standard_vdo(fix) as vdo:
+        pass
+
+    mixed_configs = [
+        {"logical": 1},
+        {"physical": 1},
+        {"hash": 1},
+        {"logical": 1, "physical": 1},
+        {"logical": 1, "hash": 1},
+        {"physical": 1, "hash": 1},
+    ]
+    for zone_opts in mixed_configs:
+        try_a_bad_value(fix, error_msg, format=False, **zone_opts)
+
+
 def t_corrupt_geometry(fix):
     # Test trying to start when the geometry block has been clobbered.
     with standard_vdo(fix) as vdo:
@@ -84,6 +104,7 @@ def register(tests):
         "/vdo/load_failure/",
         [
             ("bad_values", t_bad_values),
+            ("mixed_zone_counts", t_mixed_zone_counts),
             ("corrupt_geometry", t_corrupt_geometry),
         ],
     )

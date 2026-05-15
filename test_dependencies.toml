@@ -589,3 +589,7 @@ targets = [ "delay",]
 ["/delay/large-delay"]
 executables = [ "dd", "dmsetup",]
 targets = [ "delay",]
+
+["/vdo/load_failure/mixed_zone_counts"]
+executables = [ "blockdev", "dmsetup", "vdoformat",]
+targets = [ "vdo",]
