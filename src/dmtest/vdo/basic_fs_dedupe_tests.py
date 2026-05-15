@@ -25,7 +25,7 @@ def t_basic_fs_dedupe(fix) -> None:
 
     with standard_vdo(fix) as vdo:
         fs = Ext4(vdo.path)
-        fs.format()
+        fs.format(lazy_itable_init=False)
 
         with tempfile.TemporaryDirectory() as mount_point:
             fs.mount(mount_point)

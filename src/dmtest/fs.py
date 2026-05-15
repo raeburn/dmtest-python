@@ -61,7 +61,8 @@ class Ext4(BaseFS):
 
     def mkfs_cmd(self, opts):
         discard_arg = "discard" if opts.get("discard", True) else "nodiscard"
-        return f"mkfs.ext4 -F -E lazy_itable_init=1,{discard_arg} {self._dev}"
+        lazy_init = 1 if opts.get("lazy_itable_init", True) else 0
+        return f"mkfs.ext4 -F -E lazy_itable_init={lazy_init},{discard_arg} {self._dev}"
 
 
 class Xfs(BaseFS):
