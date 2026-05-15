@@ -15,7 +15,7 @@ from dmtest.gendatablocks import make_block_range
 from dmtest.process import run
 from dmtest.utils import dev_size
 from dmtest.vdo.stats import vdo_stats
-from dmtest.vdo.utils import BLOCK_SIZE, GB, wait_for_index
+from dmtest.vdo.utils import BLOCK_SIZE, GB, MB, wait_for_index
 
 
 def t_device_switch(fix) -> None:
@@ -28,7 +28,7 @@ def t_device_switch(fix) -> None:
 
     data_dev = fix.cfg["data_dev"]
     block_count = 1000
-    linear_size = 10 * GB  # 10 GB for each linear device
+    linear_size = 3 * GB
     linear_sectors = linear_size // 512
 
     # Create two linear devices from the base storage
@@ -44,8 +44,8 @@ def t_device_switch(fix) -> None:
         # Create and format VDO on linear_one
         log.info("Formatting VDO on first linear device")
         physical_size = dev_size(linear_one.path) * 512
-        logical_size = 20 * GB
-        run(f"vdoformat --force --logical-size={logical_size}B --uds-memory-size=0.25 {linear_one.path}")
+        logical_size = 100 * MB
+        run(f"vdoformat --force --logical-size={logical_size}B --uds-memory-size=0.25 --slab-bits=15 {linear_one.path}")
 
         # Create VDO device on linear_one
         log.info("Creating VDO device on first linear device")
@@ -92,7 +92,7 @@ def t_device_switch(fix) -> None:
 
             # Step 4: Copy data from linear_one to linear_two
             log.info("Copying data from first to second linear device")
-            run(f"dd if={linear_one.path} of={linear_two.path} bs=4096 iflag=direct oflag=direct conv=fsync status=progress")
+            run(f"dd if={linear_one.path} of={linear_two.path} bs=2M iflag=direct oflag=direct conv=fsync status=noxfer")
 
             # Step 5: Suspend linear_one to prove it's not accessed
             log.info("Suspending first linear device to prove it's not accessed")
