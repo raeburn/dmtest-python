@@ -593,3 +593,11 @@ targets = [ "delay",]
 ["/vdo/load_failure/mixed_zone_counts"]
 executables = [ "blockdev", "dmsetup", "vdoformat",]
 targets = [ "vdo",]
+
+["/vdo/thread_config/single_thread_mode"]
+executables = [ "blockdev", "dmsetup", "ps", "vdoformat",]
+targets = [ "vdo",]
+
+["/vdo/thread_config/thread_counts"]
+executables = [ "blockdev", "dmsetup", "ps", "vdoformat",]
+targets = [ "vdo",]
