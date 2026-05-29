@@ -299,8 +299,8 @@ def register(tests):
             ("many-snapshots-of-same-volume", t_many_snapshots_of_same_volume),
             ("parallel-io-to-shared-thins", t_parallel_io_to_shared_thins),
             ("ref-count-tree", t_ref_count_tree),
-            ("many-snaps-with-changes", t_many_snaps_with_changes, reg.check_linux_repo),
-            ("try-and-create-duplicates", t_try_and_create_duplicates, reg.check_linux_repo),
+            ("many-snaps-with-changes", t_many_snaps_with_changes, [], reg.check_linux_repo),
+            ("try-and-create-duplicates", t_try_and_create_duplicates, [], reg.check_linux_repo),
         ],
     )
     tests.register_batch(
