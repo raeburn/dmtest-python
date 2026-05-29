@@ -34,6 +34,18 @@ class Test(NamedTuple):
     test_fn: Callable[[fixture.Fixture], None]
 
 
+def _parse_test_entry(entry):
+    if len(entry) == 2:
+        path, callback = entry
+        return path, callback, None
+
+    if len(entry) == 3:
+        path, callback, dep_fn = entry
+        return path, callback, dep_fn
+
+    raise ValueError(f"test entry must have 2-3 elements, got {len(entry)}")
+
+
 class TestRegister:
     def __init__(self):
         self._tests = {}
@@ -48,12 +60,9 @@ class TestRegister:
         if not prefix.endswith("/"):
             prefix += "/"
 
-        for test in tests:
-            if len(test) == 2:
-                path, callback = test
-                dep_fn = batch_dep_fn
-            else:
-                path, callback, dep_fn = test
+        for entry in tests:
+            path, callback, dep_fn = _parse_test_entry(entry)
+            dep_fn = dep_fn or batch_dep_fn
             self.register(prefix + path.lstrip("/"), callback, dep_fn)
 
     def paths(self, results, result_set, filt=None):
