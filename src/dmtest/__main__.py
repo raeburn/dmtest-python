@@ -442,6 +442,19 @@ def cmd_health(tests: test_register.TestRegister, args, results):
 
 
 # -----------------------------------------
+# 'list-tags' command
+
+
+def cmd_list_tags(tests: test_register.TestRegister, args, results: db.TestResults):
+    tags = tests.count_tags()
+    if not tags:
+        print("No tags defined.")
+        return
+    for tag, count in sorted(tags.items()):
+        print(f"  {tag.ljust(20)} {count} tests")
+
+
+# -----------------------------------------
 # Command line parser
 
 
@@ -623,6 +636,9 @@ def command_line_parser():
         type=str,
         help="only show runs whose result matches the given state",
     )
+
+    list_tags_p = subparsers.add_parser("list-tags", help="list all tags with test counts")
+    list_tags_p.set_defaults(func=cmd_list_tags)
 
     health_p = subparsers.add_parser(
         "health", help="check required tools are installed"

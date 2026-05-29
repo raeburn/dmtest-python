@@ -6,6 +6,7 @@ import dmtest.fixture as fixture
 import dmtest.process as process
 import dmtest.dependency_tracker as dep
 
+from collections import Counter
 from typing import NamedTuple, Callable, Optional
 
 
@@ -108,6 +109,9 @@ class TestRegister:
     def get_tags(self, path):
         t = self._tests.get(path)
         return t.tags if t else frozenset()
+
+    def count_tags(self):
+        return Counter(tag for t in self._tests.values() for tag in t.tags)
 
 
 targets_to_kmodules = {
