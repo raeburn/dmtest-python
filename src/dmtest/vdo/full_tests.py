@@ -15,7 +15,7 @@ def get_free_space(stats):
     return stats["physicalBlocks"] - stats["overheadBlocksUsed"] - stats["dataBlocksUsed"]
 
 def t_full(fix):
-    data_dev = fix.cfg["data_dev"]
+    data_dev = fix.cfg("data_dev")
     # Configure a small device so we can fill it quickly.
     slab_bits = 13
     size_gb = 3

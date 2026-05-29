@@ -102,7 +102,7 @@ def t_largest_thin_id_succeeds(fix):
 
 def t_too_small_a_metadata_dev_fails(fix):
     vm = tvm.VM()
-    vm.add_allocation_volume(fix.cfg["data_dev"])
+    vm.add_allocation_volume(fix.cfg("data_dev"))
     vm.add_volume(tvm.LinearVolume("metadata", units.kilo(16)))
     vm.add_volume(tvm.LinearVolume("data", units.gig(8)))
 

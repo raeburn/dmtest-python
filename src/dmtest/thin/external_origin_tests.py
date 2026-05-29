@@ -74,9 +74,10 @@ def do_pattern_stamp_test(fix, opts=None):
     opts["data_size"] = opts.get("data_size", units.gig(4))
     opts["origin_size"] = opts.get("origin_size", units.gig(1))
 
-    cfg = fix.cfg
+    data_dev = fix.cfg("data_dev")
+    metadata_dev = fix.cfg("metadata_dev")
 
-    s = ExternalSnapStack(cfg["data_dev"], cfg["metadata_dev"], **opts)
+    s = ExternalSnapStack(data_dev, metadata_dev, **opts)
 
     with s.activate_origin() as origin:
         origin_stomper = stomper.PatternStomper(

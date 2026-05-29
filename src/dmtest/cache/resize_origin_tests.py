@@ -77,11 +77,10 @@ def check_sized_metadata(cmeta, old_cache_dump, new_origin_size):
 
 
 def t_expand_origin_with_reload(fix):
-    cfg = fix.cfg
-    fast_dev = cfg["metadata_dev"]
-    origin_dev = cfg["data_dev"]
-    cache_dev = cfg.get("cache_dev", None)
-    policy_name = cfg.get("cache_policy", "smq")
+    fast_dev = fix.cfg("metadata_dev")
+    origin_dev = fix.cfg("data_dev")
+    cache_dev = fix.cfg("cache_dev")
+    policy_name = fix.cfg("cache_policy")
 
     block_size = units.kilo(32)
     cache_size = units.meg(128)
@@ -120,11 +119,10 @@ def t_expand_origin_with_reload(fix):
 
 
 def t_shrink_origin_with_reload_drops_mappings(fix):
-    cfg = fix.cfg
-    fast_dev = cfg["metadata_dev"]
-    origin_dev = cfg["data_dev"]
-    cache_dev = cfg.get("cache_dev", None)
-    policy_name = cfg.get("cache_policy", "smq")
+    fast_dev = fix.cfg("metadata_dev")
+    origin_dev = fix.cfg("data_dev")
+    cache_dev = fix.cfg("cache_dev")
+    policy_name = fix.cfg("cache_policy")
 
     block_size = units.kilo(32)
     cache_size = units.meg(128)
@@ -166,11 +164,10 @@ def t_shrink_origin_with_reload_drops_mappings(fix):
 # the origin, as we always have to load a new dm-cache table to change the
 # target length. Here we test both the approaches to ensure test coverage.
 def t_shrink_origin_with_teardown_drops_mappings(fix):
-    cfg = fix.cfg
-    fast_dev = cfg["metadata_dev"]
-    origin_dev = cfg["data_dev"]
-    cache_dev = cfg.get("cache_dev", None)
-    policy_name = cfg.get("cache_policy", "smq")
+    fast_dev = fix.cfg("metadata_dev")
+    origin_dev = fix.cfg("data_dev")
+    cache_dev = fix.cfg("cache_dev")
+    policy_name = fix.cfg("cache_policy")
 
     block_size = units.kilo(32)
     cache_size = units.meg(128)
@@ -210,11 +207,10 @@ def t_shrink_origin_with_teardown_drops_mappings(fix):
 
 
 def t_shrink_origin_with_reload_should_fail_if_blocks_dirty(fix):
-    cfg = fix.cfg
-    fast_dev = cfg["metadata_dev"]
-    origin_dev = cfg["data_dev"]
-    cache_dev = cfg.get("cache_dev", None)
-    policy_name = cfg.get("cache_policy", "smq")
+    fast_dev = fix.cfg("metadata_dev")
+    origin_dev = fix.cfg("data_dev")
+    cache_dev = fix.cfg("cache_dev")
+    policy_name = fix.cfg("cache_policy")
 
     block_size = units.kilo(32)
     cache_size = units.meg(128)
@@ -255,11 +251,10 @@ def t_shrink_origin_with_reload_should_fail_if_blocks_dirty(fix):
 
 
 def t_shrink_origin_with_teardown_should_fail_if_blocks_dirty(fix):
-    cfg = fix.cfg
-    fast_dev = cfg["metadata_dev"]
-    origin_dev = cfg["data_dev"]
-    cache_dev = cfg.get("cache_dev", None)
-    policy_name = cfg.get("cache_policy", "smq")
+    fast_dev = fix.cfg("metadata_dev")
+    origin_dev = fix.cfg("data_dev")
+    cache_dev = fix.cfg("cache_dev")
+    policy_name = fix.cfg("cache_policy")
 
     block_size = units.kilo(32)
     cache_size = units.meg(128)

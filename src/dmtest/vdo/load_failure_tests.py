@@ -53,7 +53,7 @@ def t_corrupt_geometry(fix):
         pass
     start_time = time.time()
     # Overwrite just one (4kB) block with random data
-    trash_device(fix.cfg["data_dev"], 8)
+    trash_device(fix.cfg("data_dev"), 8)
     stack = standard_stack(fix, format = False)
     started = False
     try:

@@ -9,7 +9,7 @@ import subprocess
 #---------------------------------
 
 def t_insufficient_buffer_size(fix):
-    data_dev = fix.cfg["data_dev"]
+    data_dev = fix.cfg("data_dev")
     thin_size = min(units.gig(1), utils.dev_size(data_dev) // 2)
 
     with standard_pool(fix, block_size = 4096, zero = True) as src_pool:
@@ -31,7 +31,7 @@ def t_insufficient_buffer_size(fix):
 
 
 def t_input_none_thin_device(fix):
-    data_dev = fix.cfg["data_dev"]
+    data_dev = fix.cfg("data_dev")
     try:
         process.run(f"thin_migrate --source-dev {data_dev} --dest-file migrate_dest")
     except subprocess.CalledProcessError:
@@ -43,7 +43,7 @@ def t_input_none_thin_device(fix):
 
 
 def t_device_not_present_in_metadata_snap(fix):
-    data_dev = fix.cfg["data_dev"]
+    data_dev = fix.cfg("data_dev")
     thin_size = min(units.gig(1), utils.dev_size(data_dev) // 2)
 
     with standard_pool(fix, block_size = 128, zero = True) as src_pool:
@@ -64,7 +64,7 @@ def t_device_not_present_in_metadata_snap(fix):
 
 
 def t_output_none_block_device(fix):
-    data_dev = fix.cfg["data_dev"]
+    data_dev = fix.cfg("data_dev")
     thin_size = min(units.gig(1), utils.dev_size(data_dev) // 2)
 
     with standard_pool(fix, block_size = 128, zero = True) as src_pool:
@@ -86,7 +86,7 @@ def t_output_none_block_device(fix):
 
 
 def t_output_unsupported_file_type(fix):
-    data_dev = fix.cfg["data_dev"]
+    data_dev = fix.cfg("data_dev")
     thin_size = min(units.gig(1), utils.dev_size(data_dev) // 2)
 
     with standard_pool(fix, block_size = 128, zero = True) as src_pool:
@@ -106,7 +106,7 @@ def t_output_unsupported_file_type(fix):
 
 
 def t_output_device_size_differs(fix):
-    data_dev = fix.cfg["data_dev"]
+    data_dev = fix.cfg("data_dev")
     thin_size = min(units.gig(1), utils.dev_size(data_dev) // 2)
 
     with standard_pool(fix, block_size = 128, zero = True) as src_pool:
@@ -127,7 +127,7 @@ def t_output_device_size_differs(fix):
 
 
 def t_output_device_size_differs_in_file_mode(fix):
-    data_dev = fix.cfg["data_dev"]
+    data_dev = fix.cfg("data_dev")
     thin_size = min(units.gig(1), utils.dev_size(data_dev) // 2)
 
     with standard_pool(fix, block_size = 128, zero = True) as src_pool:

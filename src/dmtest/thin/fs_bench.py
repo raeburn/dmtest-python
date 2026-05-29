@@ -57,7 +57,7 @@ def t_fio_thick(fix):
     size = units.gig(90)
 
     vm = tvm.VM()
-    vm.add_allocation_volume(fix.cfg['data_dev'])
+    vm.add_allocation_volume(fix.cfg("data_dev"))
     vm.add_volume(tvm.LinearVolume("thick", size))
 
     with dmdev.dev(vm.table("thick")) as thick:
