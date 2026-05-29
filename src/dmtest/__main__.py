@@ -27,9 +27,10 @@ from typing import Optional, NamedTuple, Sequence
 
 
 class TreeFormatter:
+    INDENT = "  "
+
     def __init__(self):
         self._previous = []
-        self._indent = "  "
 
     def tree_line(self, path):
         components = [c for c in path.split("/") if c.strip()]
@@ -42,10 +43,13 @@ class TreeFormatter:
                 break
 
             if old != new:
-                strs.append(f"{self._indent * depth}{new}".ljust(50, " ") + "\n")
+                strs.append(f"{self.INDENT * depth}{new}".ljust(50, " ") + "\n")
             depth += 1
         self._previous = components
         return "".join(strs)[:-1]
+
+    def depth(self):
+        return len(self._previous)
 
 
 # -----------------------------------------
@@ -179,6 +183,11 @@ def cmd_list(tests: test_register.TestRegister, args, results: db.TestResults):
             print(f"{result.nr_runs}/{result.nr_runs} {result.pass_fail} [{result.duration:.2f}s]")
         else:
             print(f"{result.nr_pass}/{result.nr_runs} PASS [{result.duration:.2f}s]")
+        if args.show_tags:
+            tags = tests.get_tags(p)
+            if tags:
+                indent = formatter.INDENT * formatter.depth()
+                print(f"{indent}[{', '.join(sorted(tags))}]")
 
 
 # -----------------------------------------
@@ -558,6 +567,12 @@ def command_line_parser():
     arg_filter(list_p)
     arg_result_set(list_p)
     arg_run_nr(list_p)
+    list_p.add_argument(
+        "-T",
+        help="Show tags alongside test names",
+        action="store_true",
+        dest="show_tags",
+    )
 
     log_p = subparsers.add_parser("log", help="list test logs")
     log_p.set_defaults(func=cmd_log)

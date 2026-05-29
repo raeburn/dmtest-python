@@ -105,6 +105,10 @@ class TestRegister:
         else:
             raise ValueError(f"can't find test {path}")
 
+    def get_tags(self, path):
+        t = self._tests.get(path)
+        return t.tags if t else frozenset()
+
 
 targets_to_kmodules = {
     "thin-pool": "dm_thin_pool",
