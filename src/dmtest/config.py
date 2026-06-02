@@ -1,4 +1,4 @@
-import toml
+import tomllib
 
 
 # Linux reordered my nvme drives once and I ran tests across
@@ -21,7 +21,7 @@ def validate(cfg):
 
 
 def read_config(path="config.toml"):
-    with open(path, "r") as f:
-        config = toml.load(f)
+    with open(path, "rb") as f:
+        config = tomllib.load(f)
         validate(config)
         return config

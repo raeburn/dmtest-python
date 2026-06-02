@@ -1,4 +1,5 @@
-import toml
+import tomllib
+import tomli_w
 from enum import Enum
 from pathlib import Path
 from typing import Union
@@ -61,14 +62,16 @@ class TestDeps:
 
 def read_test_deps(path):
     deps = TestDeps()
-    deps._deps = toml.load(path)
+    with open(path, "rb") as f:
+        deps._deps = tomllib.load(f)
     return deps
 
 
 def write_test_deps(path, deps):
     if deps._updated:
-        with open(path, "w") as f:
-            toml.dump(deps._deps, f)
+        sorted_deps = dict(sorted(deps._deps.items()))
+        with open(path, "wb") as f:
+            tomli_w.dump(sorted_deps, f)
 
 
 global_dep_tracker = None
