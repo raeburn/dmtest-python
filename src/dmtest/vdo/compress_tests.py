@@ -4,28 +4,13 @@ Tests VDO's compression functionality including writing compressible data,
 verifying compression ratios, and ensuring deduplication works correctly
 against compressed blocks.
 """
+import logging as log
+
 from dmtest.assertions import assert_equal, assert_near
 from dmtest.gendatablocks import make_block_range
 from dmtest.vdo.stats import vdo_stats
-from dmtest.vdo.utils import BLOCK_SIZE, MB, fsync, standard_vdo, wait_for_index
+from dmtest.vdo.utils import BLOCK_SIZE, MB, fsync, standard_vdo, wait_for_index, wait_until_io_settled
 import dmtest.process as process
-
-import logging as log
-import time
-
-def wait_until_packer_only(vdo):
-    """Waits until all the I/Os being processed by a VDO device are
-    completed or waiting in the packer.
-
-    Returns VDO stats collected after waiting. (dict, see vdo_stats)
-
-    """
-    while True:
-        stats = vdo_stats(vdo)
-        if stats['currentVIOsInProgress'] == stats['packer']['compressedFragmentsInPacker']:
-            # We're done
-            return stats
-        time.sleep(0.001)
 
 def t_compress(fix):
     size = 4 * MB
@@ -59,7 +44,7 @@ def t_compress(fix):
         # notification reaches the packer first. In order to get
         # predictable rates for the test, we wait for all the I/Os we
         # sent to VDO either complete or stop in the packer.
-        wait_until_packer_only(vdo)
+        wait_until_io_settled(vdo)
         # And now we flush the I/Os left in the packer.
         fsync(vdo)
         stats = vdo_stats(vdo)
@@ -79,7 +64,7 @@ def t_compress(fix):
         # Write same data again, different location.
         # Confirm we deduplicate against compressed blocks.
         range2.write(tag="tag1", dedupe=0, compress=0.74, fsync=False)
-        stats2 = wait_until_packer_only(vdo)
+        stats2 = wait_until_io_settled(vdo)
         assert_equal(stats2['dataBlocksUsed'], stats['dataBlocksUsed'],
                      'data blocks used (2nd write)')
         assert_equal(stats2['index']['postsNotFound'], size_in_blocks,

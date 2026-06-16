@@ -59,15 +59,13 @@ def wait_for_index(dev):
         raise AssertionError("VDO not online within 30 seconds")
 
 
-
-
-
-
 @contextmanager
 def mounted_fs(dev, fs_class=None, format=False, **format_opts):
+    """Create, optionally format, and mount a filesystem as a context manager.
 
     Yields the mount point path and ensures unmount, fsck, and mount
     point removal on exit.
+    """
     if fs_class is None:
         fs_class = Ext4
     fs = fs_class(dev)
@@ -79,6 +77,28 @@ def mounted_fs(dev, fs_class=None, format=False, **format_opts):
             yield mount_point
         finally:
             fs.umount()
+
+
+def wait_until_io_settled(vdo):
+    """Wait until all I/Os are completed or waiting in the packer.
+
+    When testing VDO compression, this function ensures predictable
+    compression ratios by waiting for all I/Os to either complete or
+    reach the packer stage before flushing. I/Os still in earlier
+    processing stages (e.g., deduplication) may be written uncompressed
+    if fsync is called too early.
+
+    Args:
+        vdo: VDO device object
+
+    Returns:
+        VDO statistics dict collected after waiting
+    """
+    while True:
+        vdo_stats = stats.vdo_stats(vdo)
+        if vdo_stats['currentVIOsInProgress'] == vdo_stats['packer']['compressedFragmentsInPacker']:
+            return vdo_stats
+        time.sleep(0.001)
 
 
 def fsync(dev):
