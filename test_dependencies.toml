@@ -1280,6 +1280,36 @@ targets = [
     "vdo",
 ]
 
+["/vdo/format-in-kernel/dirty-storage"]
+executables = [
+    "blockdev",
+    "dd",
+    "dmsetup",
+]
+targets = [
+    "vdo",
+]
+
+["/vdo/format-in-kernel/minimum-size"]
+executables = [
+    "blockdev",
+    "dd",
+    "dmsetup",
+]
+targets = [
+    "vdo",
+]
+
+["/vdo/format-in-kernel/options"]
+executables = [
+    "blockdev",
+    "dd",
+    "dmsetup",
+]
+targets = [
+    "vdo",
+]
+
 ["/vdo/full/boundary"]
 executables = [
     "blkdiscard",
