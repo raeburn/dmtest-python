@@ -925,9 +925,53 @@ targets = [
     "thin-pool",
 ]
 
+["/vdo/basic/basic01"]
+executables = [
+    "bash",
+    "blockdev",
+    "cat",
+    "cp",
+    "dmsetup",
+    "echo",
+    "fsck.ext4",
+    "mkdir",
+    "mkfs.ext4",
+    "mount",
+    "umount",
+    "vdoformat",
+]
+targets = [
+    "vdo",
+]
+
+["/vdo/basic/fs-dedupe"]
+executables = [
+    "blockdev",
+    "dmsetup",
+    "echo",
+    "fsck.ext4",
+    "mkfs.ext4",
+    "mount",
+    "umount",
+    "vdoformat",
+]
+targets = [
+    "vdo",
+]
+
 ["/vdo/compress/compress"]
 executables = [
     "blkdiscard",
+    "blockdev",
+    "dmsetup",
+    "vdoformat",
+]
+targets = [
+    "vdo",
+]
+
+["/vdo/creation/create-03"]
+executables = [
     "blockdev",
     "dmsetup",
     "vdoformat",
@@ -1063,5 +1107,16 @@ executables = [
 targets = [
     "error",
     "linear",
+    "vdo",
+]
+
+["/vdo/uds-timeout/timeout"]
+executables = [
+    "blockdev",
+    "dmsetup",
+    "vdoformat",
+]
+targets = [
+    "delay",
     "vdo",
 ]
