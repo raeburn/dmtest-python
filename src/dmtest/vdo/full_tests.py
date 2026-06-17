@@ -1,45 +1,42 @@
-"""VDO filling and space management test.
+"""VDO full-device boundary test.
 
-Tests VDO device filling, deduplication of data on a full device, and space
-reclamation via discard operations. Verifies free space tracking at each step.
+Precisely fills a VDO device to capacity and exercises behavior at the
+boundary: deduplication still works on a full device, new allocations fail
+with ENOSPC, statistics remain consistent after failed writes, all data
+verifies correctly, and trim reclaims space as expected.
 """
+import errno
+
 from dmtest.assertions import assert_equal
 import dmtest.device_mapper.dev as dmdev
 from dmtest.gendatablocks import make_block_range
-import dmtest.process as process
 import dmtest.tvm as tvm
 import dmtest.units as units
 import dmtest.vdo.stats as stats
+from dmtest.vdo.stats import get_free_blocks
 from dmtest.vdo.utils import MB, GB, populate_block_map
 import dmtest.vdo.vdo_stack as vs
 
-import logging as log
-import time
 
-def get_free_space(stats):
-    return stats["physicalBlocks"] - stats["overheadBlocksUsed"] - stats["dataBlocksUsed"]
-
-def t_full(fix):
-    data_dev = fix.cfg("data_dev")
-    # Configure a small device so we can fill it quickly.
+def t_full_boundary(fix):
+    data_dev = fix.cfg["data_dev"]
     slab_bits = 13
     size_gb = 3
     vm = tvm.VM()
     vm.add_allocation_volume(data_dev)
     vm.add_volume(tvm.LinearVolume("storage", units.gig(size_gb)))
     with dmdev.dev(vm.table("storage")) as storage:
-        vdo_volume = vs.VDOStack(storage, logical_size = 3 * size_gb * GB,
-                                 slab_bits = slab_bits)
+        vdo_volume = vs.VDOStack(storage, logical_size=3 * size_gb * GB,
+                                 slab_bits=slab_bits)
         with vdo_volume.activate() as vdo:
-            # Initialize the block map, so we can calculate how many data
-            # blocks we still have room for.
             populate_block_map(vdo)
             mapped_stats = stats.vdo_stats(vdo)
             assert_equal(mapped_stats["dataBlocksUsed"], 0)
-            free_space = get_free_space(mapped_stats)
+            free_space = get_free_blocks(mapped_stats)
+
             size1 = (free_space - 1) * 4096
             size2 = MB
-            # This test assumes size1 > size2 ...
+
             range1 = make_block_range(path=vdo.path, block_size=4096,
                                       block_count=size1 // 4096)
             range2 = make_block_range(path=vdo.path, block_size=4096,
@@ -54,55 +51,57 @@ def t_full(fix):
             range5 = make_block_range(path=vdo.path, block_size=4096,
                                       block_count=1,
                                       offset=(size1 + size2) // 4096 + 2)
+
             # Fill all blocks but one.
-            range1.write(tag="tag1")
+            range1.write(tag="tag1", direct=True)
             new_stats = stats.vdo_stats(vdo)
-            free_space = get_free_space(new_stats)
-            assert_equal(free_space, 1)
-            # New locations but repeated data
-            range2.write(tag="tag1")
+            assert_equal(get_free_blocks(new_stats), 1)
+
+            # New locations but repeated data — dedup means no new allocation.
+            range2.write(tag="tag1", direct=True)
             new_stats = stats.vdo_stats(vdo)
-            free_space = get_free_space(new_stats)
-            assert_equal(free_space, 1)
-            # Finish filling the device - new location & data
-            range3.write(tag="tag2")
+            assert_equal(get_free_blocks(new_stats), 1)
+
+            # Finish filling the device — new location & data.
+            range3.write(tag="tag2", direct=True)
             new_stats = stats.vdo_stats(vdo)
-            free_space = get_free_space(new_stats)
-            assert_equal(free_space, 0)
-            # Writing duplicate data should work
-            range4.write(tag="tag2", fsync=True)
-            # Trimming a never-written location is a no-op, but it'll
-            # set up range5 to know to expect to find zero blocks when
-            # we verify.
+            assert_equal(get_free_blocks(new_stats), 0)
+
+            # Writing duplicate data should still work on a full device.
+            range4.write(tag="tag2", direct=True)
+
+            # Snapshot stats before the expected failure.
+            before_fail = stats.vdo_stats(vdo)
+
+            # Trimming a never-written location sets up range5 to expect zeros.
             range5.trim()
-            # Writing new data should fail
-            gave_error = False
+
+            # Writing new data should fail with ENOSPC.
             try:
-                range5.write(tag="tag3", fsync=True)
-            except OSError as e:
-                # VDO should be generating ENOSPC errors here but what
-                # we get out is EIO from fsync. Getting back the
-                # ENOSPC to Python may require using direct I/O in
-                # gendatablocks, which isn't supported currently.
-                #
-                # For now, just expect some error to have come back.
-                gave_error = True
-                log.info(f"exception raised! {e}")
-            if not gave_error:
+                range5.write(tag="tag3", direct=True)
                 raise AssertionError("writing new data to full VDO should fail")
-            # The write failed, so range5 will not have updated its
-            # idea of the data we should find there; it still expects
-            # zero blocks.
+            except OSError as e:
+                assert e.errno == errno.ENOSPC, f"expected ENOSPC, got {e}"
+
+            # Stats should be unchanged after the failed write.
+            after_fail = stats.vdo_stats(vdo)
+            for key in ("physicalBlocks", "overheadBlocksUsed",
+                        "dataBlocksUsed", "logicalBlocks"):
+                assert_equal(after_fail[key], before_fail[key], key)
+
+            # Verify all data.
             range1.verify()
             range2.verify()
             range3.verify()
             range4.verify()
             range5.verify()
-            # Free some space - discard some unique, some duplicated data
+
+            # Free some space — discard range1 which contains unique data
+            # plus the duplicated portion shared with range2.
             range1.trim(fsync=True)
             new_stats = stats.vdo_stats(vdo)
-            free_space = get_free_space(new_stats)
-            assert_equal(free_space, (size1 - MB) // 4096)
+            assert_equal(get_free_blocks(new_stats), (size1 - MB) // 4096)
+
 
 def register(tests):
-    tests.register("/vdo/full", t_full)
+    tests.register("/vdo/full/boundary", t_full_boundary)

@@ -2,6 +2,7 @@
 import dmtest.process as process
 
 import logging
+import mmap
 import os
 import struct
 
@@ -344,7 +345,7 @@ class BlockRange():
         """Trim the block range, if supported."""
         byte_offset = self.block_size * self.offset
         byte_size = self.block_size * self.block_count
-        process.run(f"blkdiscard -o {byte_offset} -l {byte_size} {self.path}")
+        process.run(f"blkdiscard --force -o {byte_offset} -l {byte_size} {self.path}")
         if fsync:
             with open(self.path, "w+") as f:
                 os.fsync(f.fileno())
@@ -458,14 +459,11 @@ class BlockRange():
         if (compress < 0.0) or (compress > 0.96):
             raise ValueError("the compression fraction " + str(compress)
                              + " is invalid")
-        if direct:
-            # Direct I/O requires special handling to ensure proper
-            # alignment of the in-memory buffer being written to the
-            # destination. We don't do that yet.
-            raise NotImplementedError("direct I/O is not yet supported")
         stream = BlockStream(tag, dedupe, compress)
 
         flags = os.O_WRONLY
+        if direct:
+            flags |= os.O_DIRECT
         if sync:
             flags |= os.O_SYNC
         if self.create:
@@ -473,16 +471,34 @@ class BlockRange():
 
         logging.info(f"writing {self.block_count*self.block_size} bytes tagged \"{tag}\""
                      f" to {self.path} at {self.block_size*self.offset} open flags {flags}")
-        with os.fdopen(os.open(self.path, flags), "r+b") as fd:
-            self._seek(fd)
-            for n in range(0, self.block_count):
-                data = stream.generate(n, self.block_size)
-                fd.write(data)
-                stream.counter += 1
-            fd.flush()
-            if fsync:
-                os.fsync(fd)
         self.streams.append(stream)
+        if direct:
+            fd = os.open(self.path, flags)
+            try:
+                os.lseek(fd, self.block_size * self.offset, os.SEEK_SET)
+                buf = mmap.mmap(-1, self.block_size)
+                try:
+                    for n in range(0, self.block_count):
+                        data = stream.generate(n, self.block_size)
+                        buf[:] = data
+                        os.write(fd, buf)
+                        stream.counter += 1
+                finally:
+                    buf.close()
+                if fsync:
+                    os.fsync(fd)
+            finally:
+                os.close(fd)
+        else:
+            with os.fdopen(os.open(self.path, flags), "r+b") as fd:
+                self._seek(fd)
+                for n in range(0, self.block_count):
+                    data = stream.generate(n, self.block_size)
+                    fd.write(data)
+                    stream.counter += 1
+                fd.flush()
+                if fsync:
+                    os.fsync(fd)
 
 def make_block_range(path: str,
                      block_count: int = 1,

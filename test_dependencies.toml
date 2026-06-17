@@ -1040,12 +1040,128 @@ targets = [
     "vdo",
 ]
 
-["/vdo/full"]
+["/vdo/full/boundary"]
 executables = [
     "blkdiscard",
     "blockdev",
     "dmsetup",
     "fio",
+    "vdoformat",
+]
+targets = [
+    "linear",
+    "vdo",
+]
+
+["/vdo/full/cached-compress"]
+executables = [
+    "blockdev",
+    "dmsetup",
+    "sh",
+    "vdoformat",
+]
+targets = [
+    "linear",
+    "vdo",
+]
+
+["/vdo/full/cached-compress-and-dedupe"]
+executables = [
+    "blockdev",
+    "dmsetup",
+    "sh",
+    "vdoformat",
+]
+targets = [
+    "linear",
+    "vdo",
+]
+
+["/vdo/full/cached-dedupe"]
+executables = [
+    "blockdev",
+    "dmsetup",
+    "sh",
+    "vdoformat",
+]
+targets = [
+    "linear",
+    "vdo",
+]
+
+["/vdo/full/cached-vanilla"]
+executables = [
+    "blockdev",
+    "dmsetup",
+    "sh",
+    "vdoformat",
+]
+targets = [
+    "linear",
+    "vdo",
+]
+
+["/vdo/full/direct-compress"]
+executables = [
+    "blockdev",
+    "dmsetup",
+    "vdoformat",
+]
+targets = [
+    "linear",
+    "vdo",
+]
+
+["/vdo/full/direct-compress-and-dedupe"]
+executables = [
+    "blockdev",
+    "dmsetup",
+    "vdoformat",
+]
+targets = [
+    "linear",
+    "vdo",
+]
+
+["/vdo/full/direct-dedupe"]
+executables = [
+    "blockdev",
+    "dmsetup",
+    "vdoformat",
+]
+targets = [
+    "linear",
+    "vdo",
+]
+
+["/vdo/full/direct-vanilla"]
+executables = [
+    "blockdev",
+    "dmsetup",
+    "vdoformat",
+]
+targets = [
+    "linear",
+    "vdo",
+]
+
+["/vdo/full/enospc-stress"]
+executables = [
+    "blkdiscard",
+    "blockdev",
+    "dmsetup",
+    "sh",
+    "vdoformat",
+]
+targets = [
+    "linear",
+    "vdo",
+]
+
+["/vdo/full/full-warn"]
+executables = [
+    "blockdev",
+    "dmsetup",
     "vdoformat",
 ]
 targets = [
