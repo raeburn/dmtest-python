@@ -1666,6 +1666,16 @@ targets = [
     "vdo",
 ]
 
+["/vdo/memory-fail/start"]
+executables = [
+    "blockdev",
+    "dmsetup",
+    "vdoformat",
+]
+targets = [
+    "vdo",
+]
+
 ["/vdo/slab-count/small-small"]
 executables = [
     "blockdev",
