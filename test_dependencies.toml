@@ -1293,6 +1293,70 @@ targets = [
     "vdo",
 ]
 
+["/vdo/gen-data/gen-data-01"]
+executables = [
+    "blockdev",
+    "dmsetup",
+    "echo",
+    "fsck.ext4",
+    "mkfs.ext4",
+    "mount",
+    "sync",
+    "umount",
+    "vdoformat",
+]
+targets = [
+    "vdo",
+]
+
+["/vdo/gen-data/gen-data-02"]
+executables = [
+    "blockdev",
+    "dmsetup",
+    "echo",
+    "fsck.ext4",
+    "mkfs.ext4",
+    "mount",
+    "sync",
+    "umount",
+    "vdoformat",
+]
+targets = [
+    "vdo",
+]
+
+["/vdo/gen-data/gen-data-03"]
+executables = [
+    "blockdev",
+    "dmsetup",
+    "echo",
+    "fsck.ext4",
+    "mkfs.ext4",
+    "mount",
+    "sync",
+    "umount",
+    "vdoformat",
+]
+targets = [
+    "vdo",
+]
+
+["/vdo/gen-data/parallel-data"]
+executables = [
+    "blockdev",
+    "dmsetup",
+    "echo",
+    "fsck.ext4",
+    "mkfs.ext4",
+    "mount",
+    "sync",
+    "umount",
+    "vdoformat",
+]
+targets = [
+    "vdo",
+]
+
 ["/vdo/in-flight-dedupe-and-compress/test"]
 executables = [
     "blockdev",

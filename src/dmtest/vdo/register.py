@@ -15,6 +15,10 @@ import dmtest.vdo.full_tests as vdo_full
 import dmtest.vdo.full_02_tests as vdo_full_02
 import dmtest.vdo.full_03_tests as vdo_full_03
 import dmtest.vdo.full_warn_tests as vdo_full_warn
+import dmtest.vdo.gen_data_01_tests as vdo_gen_data_01
+import dmtest.vdo.gen_data_02_tests as vdo_gen_data_02
+import dmtest.vdo.gen_data_03_tests as vdo_gen_data_03
+import dmtest.vdo.gen_data_04_tests as vdo_gen_data_04
 import dmtest.vdo.in_flight_dedupe_and_compress_tests as vdo_in_flight_dedupe_and_compress
 import dmtest.vdo.load_failure_tests as vdo_load_failure
 import dmtest.vdo.recovery_tests as vdo_recovery
@@ -38,6 +42,10 @@ def register(tests):
     vdo_full_02.register(tests)
     vdo_full_03.register(tests)
     vdo_full_warn.register(tests)
+    vdo_gen_data_01.register(tests)
+    vdo_gen_data_02.register(tests)
+    vdo_gen_data_03.register(tests)
+    vdo_gen_data_04.register(tests)
     vdo_in_flight_dedupe_and_compress.register(tests)
     vdo_load_failure.register(tests)
     vdo_recovery.register(tests)
