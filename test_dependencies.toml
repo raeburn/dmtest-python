@@ -1164,6 +1164,38 @@ targets = [
     "vdo",
 ]
 
+["/vdo/discard/discard-512"]
+executables = [
+    "blkdiscard",
+    "blockdev",
+    "cmp",
+    "date",
+    "dd",
+    "dmsetup",
+    "rm",
+    "sync",
+    "vdoformat",
+]
+targets = [
+    "vdo",
+]
+
+["/vdo/discard/discard-512-compressed"]
+executables = [
+    "blkdiscard",
+    "blockdev",
+    "cmp",
+    "date",
+    "dd",
+    "dmsetup",
+    "rm",
+    "sync",
+    "vdoformat",
+]
+targets = [
+    "vdo",
+]
+
 ["/vdo/full/boundary"]
 executables = [
     "blkdiscard",
@@ -1435,5 +1467,36 @@ executables = [
 ]
 targets = [
     "delay",
+    "vdo",
+]
+
+["/vdo/zero/dedupe"]
+executables = [
+    "blockdev",
+    "cmp",
+    "dd",
+    "dmsetup",
+    "echo",
+    "fsck.ext4",
+    "mkfs.ext4",
+    "mount",
+    "sync",
+    "umount",
+    "vdoformat",
+]
+targets = [
+    "vdo",
+]
+
+["/vdo/zero/discard"]
+executables = [
+    "blkdiscard",
+    "blockdev",
+    "dmsetup",
+    "echo",
+    "sync",
+    "vdoformat",
+]
+targets = [
     "vdo",
 ]
