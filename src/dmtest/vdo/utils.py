@@ -3,8 +3,10 @@ from dmtest.utils import dev_size
 import dmtest.vdo.vdo_stack as vs
 import dmtest.vdo.stats as stats
 import dmtest.vdo.status as status
+from dmtest.fs import Ext4
 
 import code
+from contextlib import contextmanager
 import json
 import logging as log
 from math import ceil
@@ -18,6 +20,9 @@ MB = 1024 * kB
 GB = 1024 * MB
 
 BLOCK_SIZE = 4 * kB
+
+# VDO slab bit count constants
+SLAB_BITS_SMALL = 17  # Smallest size that works for any RSVP-reserved host
 
 fio_config_template = """
 [stuff]
@@ -53,10 +58,34 @@ def wait_for_index(dev):
     if status.vdo_status(dev)["index-state"] != "online":
         raise AssertionError("VDO not online within 30 seconds")
 
+
+
+
+
+
+@contextmanager
+def mounted_fs(dev, fs_class=None, format=False, **format_opts):
+
+    Yields the mount point path and ensures unmount, fsck, and mount
+    point removal on exit.
+    if fs_class is None:
+        fs_class = Ext4
+    fs = fs_class(dev)
+    if format:
+        fs.format(**format_opts)
+    with tempfile.TemporaryDirectory() as mount_point:
+        fs.mount(mount_point)
+        try:
+            yield mount_point
+        finally:
+            fs.umount()
+
+
 def fsync(dev):
     """Sync the specified device or file."""
     with open(dev, 'w') as thing:
         os.fsync(thing.fileno())
+
 
 def run_fio_with_config(fio_config, raise_on_fail=True):
     """Run fio with the specified config file content.
