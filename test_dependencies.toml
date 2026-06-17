@@ -1040,6 +1040,97 @@ targets = [
     "vdo",
 ]
 
+["/vdo/direct/direct-01"]
+executables = [
+    "blockdev",
+    "dmsetup",
+    "vdoformat",
+]
+targets = [
+    "vdo",
+]
+
+["/vdo/direct/direct-02"]
+executables = [
+    "blockdev",
+    "dmsetup",
+    "vdoformat",
+]
+targets = [
+    "vdo",
+]
+
+["/vdo/direct/direct-03-discard-blocks"]
+executables = [
+    "blkdiscard",
+    "blockdev",
+    "dmsetup",
+    "sh",
+    "vdoformat",
+]
+targets = [
+    "vdo",
+]
+
+["/vdo/direct/direct-03-discard-duplicated-blocks"]
+executables = [
+    "blkdiscard",
+    "blockdev",
+    "dmsetup",
+    "sh",
+    "vdoformat",
+]
+targets = [
+    "vdo",
+]
+
+["/vdo/direct/direct-03-discard-with-holes"]
+executables = [
+    "blkdiscard",
+    "blockdev",
+    "dmsetup",
+    "sh",
+    "vdoformat",
+]
+targets = [
+    "vdo",
+]
+
+["/vdo/direct/direct-05"]
+executables = [
+    "blockdev",
+    "dmsetup",
+    "echo",
+    "vdoformat",
+]
+targets = [
+    "vdo",
+]
+
+["/vdo/direct/direct-06"]
+executables = [
+    "blkdiscard",
+    "blockdev",
+    "dmsetup",
+    "sh",
+    "vdoformat",
+]
+targets = [
+    "vdo",
+]
+
+["/vdo/direct/same-blocks"]
+executables = [
+    "blockdev",
+    "cmp",
+    "dd",
+    "dmsetup",
+    "vdoformat",
+]
+targets = [
+    "vdo",
+]
+
 ["/vdo/full/boundary"]
 executables = [
     "blkdiscard",
