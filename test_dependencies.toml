@@ -959,6 +959,39 @@ targets = [
     "vdo",
 ]
 
+["/vdo/collide/compressing-collisions"]
+executables = [
+    "blockdev",
+    "dmsetup",
+    "echo",
+    "vdoformat",
+]
+targets = [
+    "vdo",
+]
+
+["/vdo/collide/many-collisions"]
+executables = [
+    "blockdev",
+    "dmsetup",
+    "echo",
+    "vdoformat",
+]
+targets = [
+    "vdo",
+]
+
+["/vdo/collide/two-sets"]
+executables = [
+    "blockdev",
+    "dmsetup",
+    "echo",
+    "vdoformat",
+]
+targets = [
+    "vdo",
+]
+
 ["/vdo/compress/compress"]
 executables = [
     "blkdiscard",
@@ -1257,6 +1290,19 @@ executables = [
 ]
 targets = [
     "linear",
+    "vdo",
+]
+
+["/vdo/in-flight-dedupe-and-compress/test"]
+executables = [
+    "blockdev",
+    "cmp",
+    "dd",
+    "dmsetup",
+    "rm",
+    "vdoformat",
+]
+targets = [
     "vdo",
 ]
 
