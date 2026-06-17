@@ -13,8 +13,6 @@ import dmtest.vdo.stats as stats
 def verify_dedupe(vdo, dedupe: float):
     # Wait for index to be online
     wait_for_index(vdo)
-    # Do our usual wait on udev
-    process.run("udevadm settle")
 
     # Get stats before any writing
     stats_pre = stats.vdo_stats(vdo)
@@ -85,7 +83,6 @@ def t_dedupeWithOffsetAndRestart(fix):
     with standard_vdo(fix, format=False) as vdo:
         range1.update_path(vdo.path)
         range2.update_path(vdo.path)
-        process.run("udevadm settle")
         # We don't care about waiting for the index if we're just
         # reading.
         range1.verify()

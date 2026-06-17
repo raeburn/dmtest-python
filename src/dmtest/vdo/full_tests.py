@@ -76,7 +76,6 @@ def t_full(fix):
             # we verify.
             range5.trim()
             # Writing new data should fail
-            process.run("udevadm settle")
             gave_error = False
             try:
                 range5.write(tag="tag3", fsync=True)
@@ -94,7 +93,6 @@ def t_full(fix):
             # The write failed, so range5 will not have updated its
             # idea of the data we should find there; it still expects
             # zero blocks.
-            process.run("udevadm settle")
             range1.verify()
             range2.verify()
             range3.verify()

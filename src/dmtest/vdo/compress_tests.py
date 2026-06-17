@@ -36,7 +36,6 @@ def t_compress(fix):
         range2 = make_block_range(path=vdo.path, block_size=BLOCK_SIZE,
                                   block_count=size_in_blocks,
                                   offset=size_in_blocks)
-        process.run("udevadm settle")
         stats = vdo_stats(vdo)
         assert_equal(stats['dataBlocksUsed'], 0, 'data blocks used (init)')
         assert_equal(stats['hashLock']['dedupeAdviceValid'], 0,
