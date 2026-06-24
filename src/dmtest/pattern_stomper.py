@@ -2,7 +2,6 @@ import random
 import dmtest.units as units
 import dmtest.utils as utils
 
-from dmtest.assertions import assert_equal
 from dmtest.units import SECTOR_SIZE
 from dmtest.utils import wipe_device
 from typing import List
@@ -131,7 +130,7 @@ class PatternStomper:
 
         # just check the first few bytes
         for i in range(16):
-            assert_equal(actual[i], expected[i])
+            assert actual[i] == expected[i]
 
         # This doesn't work, presumably some string encoding issues
         # self.assertEqual(actual, expected)

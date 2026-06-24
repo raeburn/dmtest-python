@@ -8,7 +8,6 @@ import subprocess
 import unittest
 import xml.etree.ElementTree as ET
 
-from dmtest.assertions import assert_equal
 from dmtest.cache_stack import ManagedCacheStack, CachePolicy
 from dmtest.process import run
 
@@ -57,9 +56,9 @@ def check_mappings_truncation(cmeta, old_cache_dump, new_nr_origin_blocks):
     for mapping in root_old.find("mappings").iter("mapping"):
         if int(mapping.attrib["origin_block"]) < new_nr_origin_blocks:
             mapping_new = next(mappings_trunc)
-            assert_equal(mapping_new.attrib["cache_block"], mapping.attrib["cache_block"])
-            assert_equal(mapping_new.attrib["origin_block"], mapping.attrib["origin_block"])
-            assert_equal(mapping_new.attrib["dirty"], mapping.attrib["dirty"])
+            assert mapping_new.attrib["cache_block"] == mapping.attrib["cache_block"]
+            assert mapping_new.attrib["origin_block"] == mapping.attrib["origin_block"]
+            assert mapping_new.attrib["dirty"] == mapping.attrib["dirty"]
 
     # There might be extra mappings in the expanded cache. Just ignore them.
     for mapping_new in mappings_trunc:
@@ -69,14 +68,14 @@ def check_sized_metadata(cmeta, old_cache_dump, new_origin_size):
     # ensure the discard bitset size was changed according to the cache target length
     # (linux.git commit #235d2e7)
     (discard_block_size, discard_nr_blocks) = get_discard_bitset_size(cmeta)
-    assert_equal(discard_nr_blocks, math.ceil(new_origin_size / discard_block_size))
+    assert discard_nr_blocks == math.ceil(new_origin_size / discard_block_size)
     # check truncated mappings
     block_size = get_cache_block_size(cmeta)
     new_nr_origin_blocks = new_origin_size // block_size
     check_mappings_truncation(cmeta, old_cache_dump, new_nr_origin_blocks)
 
 
-def t_expand_origin_with_reload(fix):
+def test_expand_origin_with_reload(fix):
     cfg = fix.cfg
     fast_dev = cfg["metadata_dev"]
     origin_dev = cfg["data_dev"]
@@ -119,7 +118,7 @@ def t_expand_origin_with_reload(fix):
         check_sized_metadata(cmeta, cdump.path, new_origin_size)
 
 
-def t_shrink_origin_with_reload_drops_mappings(fix):
+def test_shrink_origin_with_reload_drops_mappings(fix):
     cfg = fix.cfg
     fast_dev = cfg["metadata_dev"]
     origin_dev = cfg["data_dev"]
@@ -165,7 +164,7 @@ def t_shrink_origin_with_reload_drops_mappings(fix):
 # Actually there's no differences between teardown and reload while shrinking
 # the origin, as we always have to load a new dm-cache table to change the
 # target length. Here we test both the approaches to ensure test coverage.
-def t_shrink_origin_with_teardown_drops_mappings(fix):
+def test_shrink_origin_with_teardown_drops_mappings(fix):
     cfg = fix.cfg
     fast_dev = cfg["metadata_dev"]
     origin_dev = cfg["data_dev"]
@@ -209,7 +208,7 @@ def t_shrink_origin_with_teardown_drops_mappings(fix):
         check_sized_metadata(cmeta, cdump.path, new_origin_size)
 
 
-def t_shrink_origin_with_reload_should_fail_if_blocks_dirty(fix):
+def test_shrink_origin_with_reload_should_fail_if_blocks_dirty(fix):
     cfg = fix.cfg
     fast_dev = cfg["metadata_dev"]
     origin_dev = cfg["data_dev"]
@@ -254,7 +253,7 @@ def t_shrink_origin_with_reload_should_fail_if_blocks_dirty(fix):
             raise Exception("shrink cache origin succeeded without error")
 
 
-def t_shrink_origin_with_teardown_should_fail_if_blocks_dirty(fix):
+def test_shrink_origin_with_teardown_should_fail_if_blocks_dirty(fix):
     cfg = fix.cfg
     fast_dev = cfg["metadata_dev"]
     origin_dev = cfg["data_dev"]
@@ -299,21 +298,3 @@ def t_shrink_origin_with_teardown_should_fail_if_blocks_dirty(fix):
     else:
         raise Exception("shrink cache origin succeeded without error")
 
-#----------------------------------------------------------------
-
-def register(tests):
-    tests.register_batch(
-        "/cache/resize/",
-        [
-            ("expand_origin_with_reload",
-             t_expand_origin_with_reload),
-            ("shrink_origin_with_reload_drops_mappings",
-             t_shrink_origin_with_reload_drops_mappings),
-            ("shrink_origin_with_teardown_drops_mappings",
-             t_shrink_origin_with_teardown_drops_mappings),
-            ("shrink_origin_with_reload_should_fail_if_blocks_dirty",
-             t_shrink_origin_with_reload_should_fail_if_blocks_dirty),
-            ("shrink_origin_with_teardown_should_fail_if_blocks_dirty",
-             t_shrink_origin_with_teardown_should_fail_if_blocks_dirty),
-        ],
-    )

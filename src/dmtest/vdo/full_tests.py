@@ -1,4 +1,3 @@
-from dmtest.assertions import assert_equal
 import dmtest.device_mapper.dev as dmdev
 from dmtest.gendatablocks import make_block_range
 import dmtest.process as process
@@ -14,7 +13,7 @@ import time
 def get_free_space(stats):
     return stats["physicalBlocks"] - stats["overheadBlocksUsed"] - stats["dataBlocksUsed"]
 
-def t_full(fix):
+def test_full(fix):
     data_dev = fix.cfg["data_dev"]
     # Configure a small device so we can fill it quickly.
     slab_bits = 13
@@ -30,7 +29,7 @@ def t_full(fix):
             # blocks we still have room for.
             populate_block_map(vdo)
             mapped_stats = stats.vdo_stats(vdo)
-            assert_equal(mapped_stats["dataBlocksUsed"], 0)
+            assert mapped_stats["dataBlocksUsed"] == 0
             free_space = get_free_space(mapped_stats)
             size1 = (free_space - 1) * 4096
             size2 = MB
@@ -53,17 +52,17 @@ def t_full(fix):
             range1.write(tag="tag1")
             new_stats = stats.vdo_stats(vdo)
             free_space = get_free_space(new_stats)
-            assert_equal(free_space, 1)
+            assert free_space == 1
             # New locations but repeated data
             range2.write(tag="tag1")
             new_stats = stats.vdo_stats(vdo)
             free_space = get_free_space(new_stats)
-            assert_equal(free_space, 1)
+            assert free_space == 1
             # Finish filling the device - new location & data
             range3.write(tag="tag2")
             new_stats = stats.vdo_stats(vdo)
             free_space = get_free_space(new_stats)
-            assert_equal(free_space, 0)
+            assert free_space == 0
             # Writing duplicate data should work
             range4.write(tag="tag2", fsync=True)
             # Trimming a never-written location is a no-op, but it'll
@@ -99,7 +98,4 @@ def t_full(fix):
             range1.trim(fsync=True)
             new_stats = stats.vdo_stats(vdo)
             free_space = get_free_space(new_stats)
-            assert_equal(free_space, (size1 - MB) // 4096)
-
-def register(tests):
-    tests.register("/vdo/full", t_full)
+            assert free_space == (size1 - MB) // 4096

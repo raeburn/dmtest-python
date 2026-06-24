@@ -1,5 +1,4 @@
 from dmtest.thin.utils import standard_stack, standard_pool
-from dmtest.assertions import assert_equal
 import dmtest.pool_stack as ps
 import dmtest.process as process
 import dmtest.thin.status as status
@@ -42,7 +41,7 @@ class ThinMigrate:
         process.run(f"thin_migrate --source-dev {src_thin} --dest-file {dest_thin}")
 
 
-def t_migrate_thin_to_thin(fix):
+def test_migrate_thin_to_thin(fix):
     data_dev = fix.cfg["data_dev"]
     thin_size = min(units.gig(1), utils.dev_size(data_dev) // 2)
 
@@ -60,15 +59,13 @@ def t_migrate_thin_to_thin(fix):
 
                     dest_status = status.thin_status(dest_thin)
                     src_status = status.thin_status(src_thin)
-                    assert_equal(dest_status['mapped-sectors'],
-                                 src_status['mapped-sectors'])
-                    assert_equal(dest_status['highest-mapped-sector'],
-                                 src_status['highest-mapped-sector'])
+                    assert dest_status['mapped-sectors'] == src_status['mapped-sectors']
+                    assert dest_status['highest-mapped-sector'] == src_status['highest-mapped-sector']
 
                     src_pool.message(0, f"release_metadata_snap")
 
 
-def t_migrate_thin_to_file(fix):
+def test_migrate_thin_to_file(fix):
     data_dev = fix.cfg["data_dev"]
     thin_size = min(units.gig(1), utils.dev_size(data_dev) // 2)
 
@@ -89,7 +86,7 @@ def t_migrate_thin_to_file(fix):
                     raise
 
 
-def t_large_block_size(fix):
+def test_large_block_size(fix):
     thin_size = units.gig(1)
 
     data_dev = fix.cfg["data_dev"]
@@ -112,20 +109,7 @@ def t_large_block_size(fix):
 
                     dest_status = status.thin_status(dest_thin)
                     src_status = status.thin_status(src_thin)
-                    assert_equal(dest_status['mapped-sectors'],
-                                 src_status['mapped-sectors'])
-                    assert_equal(dest_status['highest-mapped-sector'],
-                                 src_status['highest-mapped-sector'])
+                    assert dest_status['mapped-sectors'] == src_status['mapped-sectors']
+                    assert dest_status['highest-mapped-sector'] == src_status['highest-mapped-sector']
 
                     src_pool.message(0, f"release_metadata_snap")
-
-
-def register(tests):
-    tests.register_batch(
-        "/thin_migrate/migrate",
-        [
-            ("thin_to_thin", t_migrate_thin_to_thin),
-            ("thin_to_file", t_migrate_thin_to_file),
-            ("large_block_size", t_large_block_size)
-        ],
-    )

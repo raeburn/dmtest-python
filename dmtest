@@ -1,4 +1,4 @@
 #! /usr/bin/sh
 
 export PYTHONPATH=$PYTHONPATH:./src
-python3 -m dmtest $@
+python3 -m dmtest "$@"

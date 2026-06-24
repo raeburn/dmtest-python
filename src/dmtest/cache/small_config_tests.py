@@ -5,7 +5,7 @@ from dmtest.cache_stack import ManagedCacheStack, CachePolicy
 
 #----------------------------------------------------------------
 
-def t_small_config(fix):
+def test_small_config(fix):
     cfg = fix.cfg
     fast_dev = cfg["metadata_dev"]
     origin_dev = cfg["data_dev"]
@@ -26,12 +26,3 @@ def t_small_config(fix):
     with stack.activate():
         pass
 
-#----------------------------------------------------------------
-
-def register(tests):
-    tests.register_batch(
-        "/cache/creation/",
-        [
-            ("small_config", t_small_config),
-        ],
-    )

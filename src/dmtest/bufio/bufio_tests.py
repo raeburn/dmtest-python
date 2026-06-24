@@ -4,7 +4,6 @@ import dmtest.device_mapper.targets as targets
 import dmtest.tvm as tvm
 import dmtest.units as units
 import dmtest.utils as utils
-import dmtest.test_register as reg
 import enum
 import logging as log
 import mmap
@@ -291,12 +290,12 @@ def bufio_tester(data_dev, **opts):
 # -----------------------------------------------
 
 
-def t_create(fix):
+def test_create(fix):
     with bufio_tester(fix.cfg["data_dev"]):
         pass
 
 
-def t_empty_program(fix):
+def test_empty_program(fix):
     with bufio_tester(fix.cfg["data_dev"]) as tester:
         with tester.program():
             pass
@@ -314,7 +313,7 @@ def do_new_buf(p, base):
         p.inc(block)
 
 
-def t_new_buf(fix):
+def test_new_buf(fix):
     nr_threads = 16
     nr_gets = 1024
 
@@ -324,7 +323,7 @@ def t_new_buf(fix):
                 do_new_buf(p, t * nr_gets)
 
 
-def t_stamper(fix):
+def test_stamper(fix):
     with bufio_tester(fix.cfg["data_dev"]) as tester:
         with tester.program() as p:
             block = p.alloc_reg()
@@ -382,7 +381,7 @@ def do_stamper(p, base):
         p.inc(pattern)
 
 
-def t_many_stampers(fix):
+def test_many_stampers(fix):
     nr_threads = 16
     nr_gets = 1024
 
@@ -392,7 +391,7 @@ def t_many_stampers(fix):
                 do_stamper(p, t * nr_gets)
 
 
-def t_writeback_nothing(fix):
+def test_writeback_nothing(fix):
     data_dev = fix.cfg["data_dev"]
     nr_blocks = units.meg(512) // units.kilo(4)
 
@@ -464,11 +463,11 @@ def do_writes_hit_disk(fix, write_method):
                 p.inc(pattern)
 
 
-def t_writes_hit_disk_sync(fix):
+def test_writes_hit_disk_sync(fix):
     do_writes_hit_disk(fix, lambda p: p.write_sync())
 
 
-def t_writes_hit_disk_async(fix):
+def test_writes_hit_disk_async(fix):
     def async_write(p):
         p.write_async()
         p.flush()
@@ -476,7 +475,7 @@ def t_writes_hit_disk_async(fix):
     do_writes_hit_disk(fix, async_write)
 
 
-def t_writeback_many(fix):
+def test_writeback_many(fix):
     data_dev = fix.cfg["data_dev"]
     nr_blocks = units.gig(8) // units.kilo(4)
 
@@ -501,7 +500,7 @@ def t_writeback_many(fix):
             p.checkpoint(2)
 
 
-def t_hotspots(fix):
+def test_hotspots(fix):
     nr_hotspots = 16
 
     # size in 4k blocks
@@ -536,7 +535,7 @@ def t_hotspots(fix):
                 p.inc(block)
 
 
-def t_hotspots2(fix):
+def test_hotspots2(fix):
     nr_hotspots = 16
 
     # size in 4k blocks
@@ -585,7 +584,7 @@ def run_cache(fix, table, nr_blocks):
                 p.write_sync()
 
 
-def t_multiple_caches(fix):
+def test_multiple_caches(fix):
     def volume_name(index):
         return f"data{index}"
 
@@ -615,7 +614,7 @@ def t_multiple_caches(fix):
 
 
 # Checks that buffers that haven't been used for a while get evicted.
-def t_evict_old(fix):
+def test_evict_old(fix):
     data_dev = fix.cfg["data_dev"]
     nr_blocks = units.gig(1) // units.kilo(4)
     data_size = utils.dev_size(data_dev)
@@ -656,22 +655,3 @@ def t_evict_old(fix):
                 raise ValueError("cache didn't shrink")
 
 
-def register(tests):
-    tests.register_batch(
-        "/bufio/",
-        [
-            ("create", t_create),
-            ("empty-program", t_empty_program),
-            ("new-buf", t_new_buf),
-            ("stamper", t_stamper),
-            ("many-stampers", t_many_stampers),
-            ("writes-hit-disk/sync", t_writes_hit_disk_sync),
-            ("writes-hit-disk/async", t_writes_hit_disk_async),
-            ("writeback-nothing", t_writeback_nothing),
-            ("writeback-many", t_writeback_many),
-            ("hotspots", t_hotspots),
-            ("hotspots2", t_hotspots2),
-            ("many-caches", t_multiple_caches),
-            ("evict-old", t_evict_old),
-        ],
-    )

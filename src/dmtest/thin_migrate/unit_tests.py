@@ -8,7 +8,7 @@ import subprocess
 
 #---------------------------------
 
-def t_insufficient_buffer_size(fix):
+def test_insufficient_buffer_size(fix):
     data_dev = fix.cfg["data_dev"]
     thin_size = min(units.gig(1), utils.dev_size(data_dev) // 2)
 
@@ -30,7 +30,7 @@ def t_insufficient_buffer_size(fix):
                 src_pool.message(0, f"release_metadata_snap")
 
 
-def t_input_none_thin_device(fix):
+def test_input_none_thin_device(fix):
     data_dev = fix.cfg["data_dev"]
     try:
         process.run(f"thin_migrate --source-dev {data_dev} --dest-file migrate_dest")
@@ -42,7 +42,7 @@ def t_input_none_thin_device(fix):
         raise Exception("command succeeded without error")
 
 
-def t_device_not_present_in_metadata_snap(fix):
+def test_device_not_present_in_metadata_snap(fix):
     data_dev = fix.cfg["data_dev"]
     thin_size = min(units.gig(1), utils.dev_size(data_dev) // 2)
 
@@ -63,7 +63,7 @@ def t_device_not_present_in_metadata_snap(fix):
         src_pool.message(0, f"release_metadata_snap")
 
 
-def t_output_none_block_device(fix):
+def test_output_none_block_device(fix):
     data_dev = fix.cfg["data_dev"]
     thin_size = min(units.gig(1), utils.dev_size(data_dev) // 2)
 
@@ -85,7 +85,7 @@ def t_output_none_block_device(fix):
             src_pool.message(0, f"release_metadata_snap")
 
 
-def t_output_unsupported_file_type(fix):
+def test_output_unsupported_file_type(fix):
     data_dev = fix.cfg["data_dev"]
     thin_size = min(units.gig(1), utils.dev_size(data_dev) // 2)
 
@@ -105,7 +105,7 @@ def t_output_unsupported_file_type(fix):
             src_pool.message(0, f"release_metadata_snap")
 
 
-def t_output_device_size_differs(fix):
+def test_output_device_size_differs(fix):
     data_dev = fix.cfg["data_dev"]
     thin_size = min(units.gig(1), utils.dev_size(data_dev) // 2)
 
@@ -126,7 +126,7 @@ def t_output_device_size_differs(fix):
                 src_pool.message(0, f"release_metadata_snap")
 
 
-def t_output_device_size_differs_in_file_mode(fix):
+def test_output_device_size_differs_in_file_mode(fix):
     data_dev = fix.cfg["data_dev"]
     thin_size = min(units.gig(1), utils.dev_size(data_dev) // 2)
 
@@ -147,16 +147,3 @@ def t_output_device_size_differs_in_file_mode(fix):
                 src_pool.message(0, f"release_metadata_snap")
 
 
-def register(tests):
-    tests.register_batch(
-        "/thin_migrate/unit",
-        [
-            ("insufficient_buffer_size", t_insufficient_buffer_size),
-            ("input_none_thin_device", t_input_none_thin_device),
-            ("device_not_present_in_metadata_snap", t_device_not_present_in_metadata_snap),
-            ("output_none_block_device", t_output_none_block_device),
-            ("output_unsupported_file_type", t_output_unsupported_file_type),
-            ("output_device_size_differs", t_output_device_size_differs),
-            ("output_device_size_differs_in_file_mode", t_output_device_size_differs_in_file_mode),
-        ],
-    )

@@ -1,4 +1,4 @@
-from dmtest.assertions import assert_raises, assert_equal
+import pytest
 from dmtest.thin.utils import standard_stack, standard_pool
 import dmtest.dataset as dataset
 import dmtest.device_mapper.dev as dmdev
@@ -11,7 +11,6 @@ import dmtest.tvm as tvm
 import dmtest.units as units
 import dmtest.utils as utils
 import dmtest.pattern_stomper as stomper
-import dmtest.test_register as reg
 
 import os
 import threading
@@ -35,11 +34,11 @@ def run_overwrite(fix, fs_type):
                 ds2.apply(1000)
 
 
-def t_overwrite_ext4(fix):
+def test_overwrite_ext4(fix):
     run_overwrite(fix, fs.Ext4)
 
 
-def t_overwrite_xfs(fix):
+def test_overwrite_xfs(fix):
     run_overwrite(fix, fs.Xfs)
 
 
@@ -66,11 +65,11 @@ def run_create_snap(fix, fs_type):
                         ds2.apply(1000)
 
 
-def t_create_snap_ext4(fix):
+def test_create_snap_ext4(fix):
     run_create_snap(fix, fs.Ext4)
 
 
-def t_create_snap_xfs(fix):
+def test_create_snap_xfs(fix):
     run_create_snap(fix, fs.Xfs)
 
 
@@ -104,18 +103,18 @@ def run_break_sharing(fix, fs_type):
             print(f"data used: {data_used}, expected: {blocks_per_dev * 2}")
 
 
-def t_break_sharing_ext4(fix):
+def test_break_sharing_ext4(fix):
     run_break_sharing(fix, fs.Ext4)
 
 
-def t_break_sharing_xfs(fix):
+def test_break_sharing_xfs(fix):
     run_break_sharing(fix, fs.Xfs)
 
 
 # ---------------------------------
 
 
-def t_space_use(fix):
+def test_space_use(fix):
     block_size = units.kilo(64)
     thin_size = units.gig(4)
     blocks_per_dev = int(thin_size / block_size)
@@ -125,19 +124,19 @@ def t_space_use(fix):
             utils.wipe_device(thin)
 
         data_used = status.pool_status(pool)["data-used"]
-        assert_equal(data_used, blocks_per_dev)
+        assert data_used == blocks_per_dev
 
         with ps.new_snap(pool, thin_size, 1, 0) as snap:
             utils.wipe_device(snap)
 
         data_used = status.pool_status(pool)["data-used"]
-        assert_equal(data_used, 2 * blocks_per_dev)
+        assert data_used == 2 * blocks_per_dev
 
 
 # ---------------------------------
 
 
-def t_many_snapshots_of_same_volume(fix):
+def test_many_snapshots_of_same_volume(fix):
     thin_size = units.meg(256)
 
     with standard_pool(fix) as pool:
@@ -154,7 +153,7 @@ def t_many_snapshots_of_same_volume(fix):
             utils.dt_device(thin, rseed=2345)
 
 
-def t_parallel_io_to_shared_thins(fix):
+def test_parallel_io_to_shared_thins(fix):
     thin_size = units.gig(1)
     with standard_pool(fix) as pool:
         with ps.new_thin(pool, thin_size, 0) as thin:
@@ -182,7 +181,7 @@ def t_parallel_io_to_shared_thins(fix):
 
 # This test is specifically aimed at exercising the auxillery ref
 # count tree in the metadata.
-def t_ref_count_tree(fix):
+def test_ref_count_tree(fix):
     volume_size = units.meg(256)
 
     with standard_pool(fix) as pool:
@@ -198,7 +197,7 @@ def t_ref_count_tree(fix):
 
 
 # Break sharing by writing to a snapshot
-def t_stomp_snap(fix):
+def test_stomp_snap(fix):
     volume_size = units.gig(1)
     block_size = units.kilo(64)
 
@@ -219,7 +218,7 @@ def t_stomp_snap(fix):
 
 
 # Break sharing by writing to the origin
-def t_stomp_origin(fix):
+def test_stomp_origin(fix):
     """
     Test the snapshot functionality by writing to the origin volume and
     verifying the data.
@@ -257,7 +256,8 @@ def t_stomp_origin(fix):
                 snap_stomper.verify(0, 1)
 
 
-def t_many_snaps_with_changes(fix):
+@pytest.mark.needs_linux_repo
+def test_many_snaps_with_changes(fix):
     fs_type = fs.Ext4
 
     with standard_pool(fix) as pool:
@@ -273,7 +273,8 @@ def t_many_snaps_with_changes(fix):
             git.extract_each(thin, fs_type, mk_snap_)
 
 
-def t_try_and_create_duplicates(fix):
+@pytest.mark.needs_linux_repo
+def test_try_and_create_duplicates(fix):
     fs_type = fs.Ext4
 
     with standard_pool(fix) as pool:
@@ -286,40 +287,3 @@ def t_try_and_create_duplicates(fix):
 
                 git.extract(thin, fs_type, git.TAGS[20:21])
                 git.extract(snap, fs_type, git.TAGS[0:3])
-
-
-# ---------------------------------
-
-
-def register(tests):
-    tests.register_batch(
-        "/thin/snapshot",
-        [
-            ("space-use", t_space_use),
-            ("many-snapshots-of-same-volume", t_many_snapshots_of_same_volume),
-            ("parallel-io-to-shared-thins", t_parallel_io_to_shared_thins),
-            ("ref-count-tree", t_ref_count_tree),
-            ("many-snaps-with-changes", t_many_snaps_with_changes, reg.check_linux_repo),
-            ("try-and-create-duplicates", t_try_and_create_duplicates, reg.check_linux_repo),
-        ],
-    )
-    tests.register_batch(
-        "/thin/snapshot/ext4",
-        [
-            ("overwrite", t_overwrite_ext4),
-            ("create-snap", t_create_snap_ext4),
-            ("break-sharing", t_break_sharing_ext4),
-        ],
-    )
-    tests.register_batch(
-        "/thin/snapshot/xfs",
-        [
-            ("overwrite", t_overwrite_xfs),
-            ("create-snap", t_create_snap_xfs),
-            ("break-sharing", t_break_sharing_xfs),
-        ],
-    )
-    tests.register_batch(
-        "/thin/snapshot/pattern-stomper/",
-        [("snap", t_stomp_snap), ("origin", t_stomp_origin)],
-    )

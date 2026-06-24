@@ -1,7 +1,7 @@
-from dmtest.assertions import assert_matches, assert_string_in
 from dmtest.vdo.utils import standard_vdo, standard_stack
 from dmtest.utils import get_dmesg_log, trash_device
 import logging as log
+import re
 import time
 
 def try_a_bad_value(fix, expected_message, **opts):
@@ -14,13 +14,13 @@ def try_a_bad_value(fix, expected_message, **opts):
     except:
         message = get_dmesg_log(start_time)
         log.info(message)
-        assert_string_in(message, expected_message)
-        assert_string_in(message, "Bad configuration option")
-        assert_string_in(message, "ioctl: error adding target to table")
+        assert expected_message in message
+        assert "Bad configuration option" in message
+        assert "ioctl: error adding target to table" in message
     if started:
         raise AssertionError("VDO device shouldn't have started")
 
-def t_bad_values(fix):
+def test_bad_values(fix):
     # Test thread/zone counts exceeding hard-coded limits.
     format = True
     max_threads = {
@@ -47,7 +47,7 @@ def t_bad_values(fix):
     # To be tested: physical zones exceeds slab count
 
 
-def t_corrupt_geometry(fix):
+def test_corrupt_geometry(fix):
     # Test trying to start when the geometry block has been clobbered.
     with standard_vdo(fix) as vdo:
         pass
@@ -62,16 +62,6 @@ def t_corrupt_geometry(fix):
     except:
         message = get_dmesg_log(start_time)
         log.info(message)
-        assert_matches(message, r"Could not (load|parse) geometry block")
+        assert re.search(r"Could not (load|parse) geometry block", message)
     if started:
         raise AssertionError("VDO device shouldn't have started")
-
-
-def register(tests):
-    tests.register_batch(
-        "/vdo/load_failure/",
-        [
-            ("bad_values", t_bad_values),
-            ("corrupt_geometry", t_corrupt_geometry),
-        ],
-    )

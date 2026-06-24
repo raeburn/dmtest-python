@@ -1,4 +1,3 @@
-from dmtest.assertions import assert_equal, assert_near
 from dmtest.vdo.utils import BLOCK_SIZE, standard_vdo, wait_for_index
 import dmtest.gendatablocks as generator
 import dmtest.process as process
@@ -24,23 +23,23 @@ def verify_dedupe(vdo, dedupe: float):
     blocks_written = stats_delta["logicalBlocksUsed"]
     blocks_deduped = blocks_written - stats_delta["dataBlocksUsed"]
     actual = float(blocks_deduped / blocks_written)
-    assert_near(actual, dedupe, 0.01)
+    assert abs(actual - dedupe) <= 0.01
     # Verify that the data on disk is what we wrote
     br.verify()
 
-def t_dedupe0(fix):
+def test_dedupe0(fix):
     with standard_vdo(fix) as vdo:
         verify_dedupe(vdo, 0.0)
 
-def t_dedupe50(fix):
+def test_dedupe50(fix):
     with standard_vdo(fix) as vdo:
         verify_dedupe(vdo, 0.50)
 
-def t_dedupe75(fix):
+def test_dedupe75(fix):
     with standard_vdo(fix) as vdo:
         verify_dedupe(vdo, 0.75)
 
-def t_dedupeWithOffsetAndRestart(fix):
+def test_dedupeWithOffsetAndRestart(fix):
     """
     Write the same data at two offsets and ensure that VDO statistics reflect
     the appropriate values
@@ -65,15 +64,15 @@ def t_dedupeWithOffsetAndRestart(fix):
 
         # Verify first round statistics equal total data written
         vdo_stats_before = stats.vdo_stats(vdo)
-        assert_equal(vdo_stats_before['dataBlocksUsed'], block_count)
-        assert_equal(vdo_stats_before['index']['entriesIndexed'], block_count)
+        assert vdo_stats_before['dataBlocksUsed'] == block_count
+        assert vdo_stats_before['index']['entriesIndexed'] == block_count
 
         # Write {size} data at {size} offset
         range2.write(tag="hello", dedupe=0, compress=0, fsync=True)
 
         # Verify second round statistics reflect effective deduplication
         vdo_stats_after = stats.vdo_stats(vdo)
-        assert_equal(vdo_stats_after['hashLock']['dedupeAdviceValid'], block_count)
+        assert vdo_stats_after['hashLock']['dedupeAdviceValid'] == block_count
 
     # Re-assemble the VDO device, but this time without formatting
     with standard_vdo(fix, format=False) as vdo:
@@ -85,7 +84,7 @@ def t_dedupeWithOffsetAndRestart(fix):
         range1.verify()
         range2.verify()
 
-def t_dedupeWithOverwrite(fix):
+def test_dedupeWithOverwrite(fix):
     """
     Write the same data at the same offset twice and make sure that it verifies
     cleanly.
@@ -98,31 +97,19 @@ def t_dedupeWithOverwrite(fix):
         range.write(tag="tomato", dedupe=0, compress=0, fsync=True)
 
         vdo_stats_before = stats.vdo_stats(vdo)
-        assert_equal(vdo_stats_before['dataBlocksUsed'], block_count)
-        assert_equal(vdo_stats_before['hashLock']['dedupeAdviceValid'], 0)
-        assert_equal(vdo_stats_before['hashLock']['dedupeAdviceStale'], 0)
-        assert_equal(vdo_stats_before['dedupeAdviceTimeouts'], 0)
-        assert_equal(vdo_stats_before['biosIn']['write'], block_count)
-        assert_equal(vdo_stats_before['biosOut']['write'], block_count)
+        assert vdo_stats_before['dataBlocksUsed'] == block_count
+        assert vdo_stats_before['hashLock']['dedupeAdviceValid'] == 0
+        assert vdo_stats_before['hashLock']['dedupeAdviceStale'] == 0
+        assert vdo_stats_before['dedupeAdviceTimeouts'] == 0
+        assert vdo_stats_before['biosIn']['write'] == block_count
+        assert vdo_stats_before['biosOut']['write'] == block_count
 
         range.write(tag="tomato", dedupe=0, compress=0, fsync=True)
 
         vdo_stats_after = stats.vdo_stats(vdo)
-        assert_equal(vdo_stats_after['dataBlocksUsed'], block_count)
-        assert_equal(vdo_stats_after['hashLock']['dedupeAdviceValid'], block_count)
-        assert_equal(vdo_stats_after['hashLock']['dedupeAdviceStale'], 0)
-        assert_equal(vdo_stats_after['dedupeAdviceTimeouts'], 0)
-        assert_equal(vdo_stats_after['biosIn']['write'], block_count * 2)
-        assert_equal(vdo_stats_after['biosOut']['write'], block_count)
-
-def register(tests):
-    tests.register_batch(
-        "/vdo/dedupe/",
-        [
-            ("dedupe0", t_dedupe0),
-            ("dedupe50", t_dedupe50),
-            ("dedupe75", t_dedupe75),
-            ("dedupeWithOffsetAndRestart", t_dedupeWithOffsetAndRestart),
-            ("dedupeWithOverwrite", t_dedupeWithOverwrite),
-        ],
-    )
+        assert vdo_stats_after['dataBlocksUsed'] == block_count
+        assert vdo_stats_after['hashLock']['dedupeAdviceValid'] == block_count
+        assert vdo_stats_after['hashLock']['dedupeAdviceStale'] == 0
+        assert vdo_stats_after['dedupeAdviceTimeouts'] == 0
+        assert vdo_stats_after['biosIn']['write'] == block_count * 2
+        assert vdo_stats_after['biosOut']['write'] == block_count

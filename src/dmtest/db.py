@@ -195,6 +195,20 @@ class TestResults:
 
         return test_results
 
+    def get_test_names(self, result_set: str) -> List[str]:
+        result_set_id = self.get_result_set_id(result_set)
+        if result_set_id is None:
+            return []
+        cursor = self._conn.cursor()
+        cursor.execute(
+            """SELECT DISTINCT test_names.test_name
+               FROM test_results
+               JOIN test_names ON test_results.test_name_id = test_names.test_name_id
+               WHERE test_results.result_set_id = ?""",
+            (result_set_id,),
+        )
+        return [row[0] for row in cursor.fetchall()]
+
     def get_result_sets(self) -> List[str]:
         cursor = self._conn.cursor()
         cursor.execute("SELECT result_set FROM result_sets")

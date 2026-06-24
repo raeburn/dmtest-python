@@ -1,3 +1,4 @@
+pytest
 toml==0.10.2
 pudb
 numpy

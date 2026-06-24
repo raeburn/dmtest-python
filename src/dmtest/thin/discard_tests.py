@@ -47,7 +47,7 @@ def write_metadata(file, tree: ET.ElementTree):
     tree.write(file, encoding="utf-8", xml_declaration=False)
 
 
-def t_blktrace(fix):
+def test_blktrace(fix):
     with standard_pool(fix, block_size=524288) as pool:
         with ps.new_thin(pool, units.gig(4), 0) as thin:
             trace = bt.BlkTrace([thin.path])
@@ -62,7 +62,7 @@ def t_blktrace(fix):
         print(dev)
 
 
-def t_unmaps_with_passdown_discardable_pool(fix):
+def test_unmaps_with_passdown_discardable_pool(fix):
     with standard_pool(fix) as pool:
         with ps.new_thin(pool, units.gig(4), 0) as thin:
             trace = bt.BlkTrace([thin.path])
@@ -70,18 +70,7 @@ def t_unmaps_with_passdown_discardable_pool(fix):
                 utils.wipe_device(thin)
 
 
-def t_xml(fix):
+def test_xml(fix):
     with standard_pool(fix) as pool:
         with ps.new_thin(pool, units.gig(4), 0) as thin:
             utils.wipe_device(thin)
-
-
-def register(tests):
-    tests.register_batch(
-        "/thin/discard/",
-        [
-            ("blktrace", t_blktrace),
-            ("unmaps-passdown-discardable", t_unmaps_with_passdown_discardable_pool),
-            ("xml-tests", t_xml),
-        ],
-    )

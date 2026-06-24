@@ -1,20 +1,13 @@
-from dmtest.assertions import assert_raises, assert_equal
 from dmtest.thin.utils import standard_stack, standard_pool
-import dmtest.dataset as dataset
-import dmtest.device_mapper.dev as dmdev
 import dmtest.fs as fs
 import dmtest.git as git
 import dmtest.pool_stack as ps
 import dmtest.process as process
-import dmtest.thin.status as status
-import dmtest.tvm as tvm
 import dmtest.units as units
 import dmtest.utils as utils
-import dmtest.pattern_stomper as stomper
-import dmtest.test_register as reg
+import pytest
 
 import os
-import threading
 import logging as log
 
 from dmtest.blk_archive.common import BlkArchive
@@ -22,7 +15,8 @@ from dmtest.blk_archive.common import BlkArchive
 # --------------------------------
 
 
-def t_rolling_snaps(fix):
+@pytest.mark.needs_linux_repo
+def test_rolling_snaps(fix):
     fs_type = fs.Ext4
     thin_size = units.gig(8)
 
@@ -70,13 +64,3 @@ def t_rolling_snaps(fix):
                     index += 1
 
 
-# --------------------------------
-
-
-def register(tests):
-    tests.register_batch(
-        "/blk-archive/",
-        [
-            ("rolling-snaps", t_rolling_snaps, reg.check_linux_repo),
-        ],
-    )

@@ -96,32 +96,17 @@ def do_pattern_stamp_test(fix, opts=None):
             origin_stomper.verify(0, 1)
 
 
-def t_snap_equal_size(fix):
+def test_snap_equal_size(fix):
     do_pattern_stamp_test(fix)
 
 
-def t_snap_smaller_than_origin(fix):
+def test_snap_smaller_than_origin(fix):
     do_pattern_stamp_test(fix, {"thin_size": units.meg(512)})
 
 
-def t_snap_bigger_than_origin(fix):
+def test_snap_bigger_than_origin(fix):
     do_pattern_stamp_test(fix, {"thin_size": units.gig(2)})
 
 
-def t_snap_fractional_tail_block(fix):
+def test_snap_fractional_tail_block(fix):
     do_pattern_stamp_test(fix, {"origin_size": units.gig(1) + 16})
-
-
-# ---------------------------------
-
-
-def register(tests):
-    tests.register_batch(
-        "/thin/external-origin",
-        [
-            ("snap-equal-size", t_snap_equal_size),
-            ("snap-smaller-than-origin", t_snap_smaller_than_origin),
-            ("snap-bigger-than-origin", t_snap_bigger_than_origin),
-            ("snap-fractional-tail-block", t_snap_fractional_tail_block),
-        ],
-    )

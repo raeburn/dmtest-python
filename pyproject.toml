@@ -1,0 +1,5 @@
+[tool.pytest.ini_options]
+python_files = ["*_tests.py"]
+testpaths = ["src/dmtest"]
+addopts = "--import-mode=importlib"
+markers = ["needs_linux_repo: test requires a linux git repository"]

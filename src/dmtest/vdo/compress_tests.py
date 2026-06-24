@@ -1,4 +1,3 @@
-from dmtest.assertions import assert_equal, assert_near
 from dmtest.gendatablocks import make_block_range
 from dmtest.vdo.stats import vdo_stats
 from dmtest.vdo.utils import BLOCK_SIZE, MB, fsync, standard_vdo, wait_for_index
@@ -21,7 +20,7 @@ def wait_until_packer_only(vdo):
             return stats
         time.sleep(0.001)
 
-def t_compress(fix):
+def test_compress(fix):
     size = 4 * MB
     size_in_blocks = size // BLOCK_SIZE
     with standard_vdo(fix, compression="on") as vdo:
@@ -32,11 +31,11 @@ def t_compress(fix):
                                   offset=size_in_blocks)
         process.run("udevadm settle")
         stats = vdo_stats(vdo)
-        assert_equal(stats['dataBlocksUsed'], 0, 'data blocks used (init)')
-        assert_equal(stats['hashLock']['dedupeAdviceValid'], 0,
-                     'dedupe advice valid (init)')
-        assert_equal(stats['biosIn']['write'], 0,
-                     'write bios in (init)')
+        assert stats['dataBlocksUsed'] == 0, 'data blocks used (init)'
+        assert stats['hashLock']['dedupeAdviceValid'] == 0, \
+            'dedupe advice valid (init)'
+        assert stats['biosIn']['write'] == 0, \
+            'write bios in (init)'
         log.info(f"data blocks used: {stats['dataBlocksUsed']}")
         wait_for_index(vdo)
         # No flushing here!
@@ -58,31 +57,31 @@ def t_compress(fix):
         # And now we flush the I/Os left in the packer.
         fsync(vdo)
         stats = vdo_stats(vdo)
-        assert_equal(stats['biosIn']['write'], size_in_blocks,
-                     'write bios in (1st write)')
+        assert stats['biosIn']['write'] == size_in_blocks, \
+            'write bios in (1st write)'
         expected_size = (size_in_blocks + 2) // 3
         # Some blocks in the packer may be written uncompressed when
         # we flush. That _should_ be only one, at most.
-        assert_near(stats['dataBlocksUsed'], expected_size, 1,
-                    'data blocks used (1st write)')
-        assert_equal(stats['index']['postsNotFound'], size_in_blocks,
-                     'posts not found (1st write)')
-        assert_equal(stats['index']['postsFound'], 0,
-                     'posts found (1st write)')
-        assert_equal(stats['hashLock']['dedupeAdviceValid'], 0,
-                     'dedupe advice valid (1st write)')
+        assert abs(stats['dataBlocksUsed'] - expected_size) <= 1, \
+            'data blocks used (1st write)'
+        assert stats['index']['postsNotFound'] == size_in_blocks, \
+            'posts not found (1st write)'
+        assert stats['index']['postsFound'] == 0, \
+            'posts found (1st write)'
+        assert stats['hashLock']['dedupeAdviceValid'] == 0, \
+            'dedupe advice valid (1st write)'
         # Write same data again, different location.
         # Confirm we deduplicate against compressed blocks.
         range2.write(tag="tag1", dedupe=0, compress=0.74, fsync=False)
         stats2 = wait_until_packer_only(vdo)
-        assert_equal(stats2['dataBlocksUsed'], stats['dataBlocksUsed'],
-                     'data blocks used (2nd write)')
-        assert_equal(stats2['index']['postsNotFound'], size_in_blocks,
-                     'posts not found (2nd write)')
-        assert_equal(stats2['index']['postsFound'], size_in_blocks,
-                     'posts found (2nd write)')
-        assert_equal(stats2['hashLock']['dedupeAdviceValid'],
-                     size_in_blocks, 'dedupe advice valid (2nd write)')
+        assert stats2['dataBlocksUsed'] == stats['dataBlocksUsed'], \
+            'data blocks used (2nd write)'
+        assert stats2['index']['postsNotFound'] == size_in_blocks, \
+            'posts not found (2nd write)'
+        assert stats2['index']['postsFound'] == size_in_blocks, \
+            'posts found (2nd write)'
+        assert stats2['hashLock']['dedupeAdviceValid'] == size_in_blocks, \
+            'dedupe advice valid (2nd write)'
         # Confirm we can read back compressed data correctly.
         range1.verify()
         # Check recovery of unreferenced compressed data.
@@ -91,13 +90,5 @@ def t_compress(fix):
         range1.verify()
         range2.verify()
         stats = vdo_stats(vdo)
-        assert_equal(stats['dataBlocksUsed'], 0,
-                     'data blocks used (discard)')
-
-def register(tests):
-    tests.register_batch(
-        "/vdo/compress/",
-        [
-            ("compress", t_compress),
-        ],
-    )
+        assert stats['dataBlocksUsed'] == 0, \
+            'data blocks used (discard)'

@@ -6,7 +6,7 @@ import tempfile
 from dmtest.blk_archive.common import unit_test_data_context, Data, BlkArchive, rs
 
 
-def t_src_dest_combinations(fix):
+def test_src_dest_combinations(fix):
     test_dir = tempfile.mkdtemp(prefix='blk_archive_unit_test_', dir="/")
 
     try:
@@ -45,10 +45,3 @@ def t_src_dest_combinations(fix):
         shutil.rmtree(test_dir)
 
 
-def register(tests):
-    tests.register_batch(
-        "/blk-archive/unit",
-        [
-            ("combinations", t_src_dest_combinations),
-        ],
-    )

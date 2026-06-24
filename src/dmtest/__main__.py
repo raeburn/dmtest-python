@@ -1,26 +1,12 @@
 import argparse
-import dmtest.bufio.bufio_tests as bufio
 import dmtest.db as db
-import dmtest.fixture
-import dmtest.test_register as test_register
-import dmtest.blk_archive.rolling_snaps as blk_archive
-import dmtest.blk_archive.unit as blk_archive_unit
-import dmtest.cache.register as cache_register
-import dmtest.thin.register as thin_register
-import dmtest.thin_migrate.register as thin_migrate_register
-import dmtest.vdo.register as vdo_register
 import dmtest.dependency_tracker as dep
-import dmtest.test_filter as filter
-from dmtest.utils import get_dmesg_log
-import io
 import itertools
-import logging as log
 import os
-import sys
-import time
-import traceback
-import subprocess
+import re
 import shutil
+import subprocess
+import sys
 from typing import Optional, NamedTuple, Sequence
 
 
@@ -47,9 +33,7 @@ class TreeFormatter:
 
 
 # -----------------------------------------
-# 'result set' should come from command line
-# or environment.
-
+# Result set helpers
 
 def get_result_set(args):
     if args.result_set:
@@ -78,10 +62,69 @@ eg 'bufio-rewrite'.
 
 
 # -----------------------------------------
+# Filtering helpers — applied to stored test names
+
+def build_filter(args):
+    filters = []
+    for pat in args.rx or []:
+        regex = re.compile(pat)
+        filters.append(("rx", regex))
+    for ss in args.substring or []:
+        filters.append(("ss", ss))
+    return filters
+
+
+def matches_filter(test_name, filters, and_mode=False):
+    if not filters:
+        return True
+    results = []
+    for kind, val in filters:
+        if kind == "rx":
+            results.append(bool(val.search(test_name)))
+        elif kind == "ss":
+            results.append(val in test_name)
+    if and_mode:
+        return all(results)
+    return any(results)
+
+
+def matches_state(pass_fail, state_filters):
+    if not state_filters:
+        return True
+    for s in state_filters:
+        negate = s.startswith("^")
+        target = s[1:] if negate else s
+        match = (pass_fail or "-").lower() == target.lower()
+        if negate:
+            match = not match
+        if match:
+            return True
+    return False
+
+
+def get_matching_paths(results, result_set, args):
+    filters = build_filter(args)
+    state_filters = args.state or []
+    and_mode = getattr(args, "and_filters", False)
+
+    all_names = results.get_test_names(result_set)
+    paths = []
+    for name in all_names:
+        if not matches_filter(name, filters, and_mode):
+            continue
+        if state_filters:
+            res_list = results.get_test_results(name, result_set)
+            pf = res_list[0].pass_fail if res_list else "-"
+            if not matches_state(pf, state_filters):
+                continue
+        paths.append(name)
+    return sorted(paths)
+
+
+# -----------------------------------------
 # 'result-sets' command
 
-
-def cmd_result_sets(tests: test_register.TestRegister, args, results: db.TestResults):
+def cmd_result_sets(args, results):
     for rs in results.get_result_sets():
         print(f"    {rs}")
 
@@ -89,10 +132,7 @@ def cmd_result_sets(tests: test_register.TestRegister, args, results: db.TestRes
 # -----------------------------------------
 # 'result-set-delete' command
 
-
-def cmd_result_set_delete(
-    tests: test_register.TestRegister, args, results: db.TestResults
-):
+def cmd_result_set_delete(args, results):
     try:
         results.delete_result_set(args.result_set)
     except db.NoSuchResultSet:
@@ -100,13 +140,9 @@ def cmd_result_set_delete(
 
 
 # -----------------------------------------
-# -----------------------------------------
 # 'result-set-rename' command
 
-
-def cmd_result_set_rename(
-    tests: test_register.TestRegister, args, results: db.TestResults
-):
+def cmd_result_set_rename(args, results):
     try:
         results.rename_result_set(args.old_result_set, args.new_result_set)
     except (db.NoSuchResultSet, db.ResultSetInUse) as e:
@@ -157,10 +193,9 @@ def average_results(res_list: Sequence[db.TestResult]) -> Optional[AvgResult]:
     )
 
 
-def cmd_list(tests: test_register.TestRegister, args, results: db.TestResults):
+def cmd_list(args, results):
     result_set = get_result_set(args)
-    filter = build_filter(args)
-    paths = sorted(tests.paths(results, result_set, filter))
+    paths = get_matching_paths(results, result_set, args)
     formatter = TreeFormatter()
 
     if len(paths) == 0:
@@ -168,7 +203,7 @@ def cmd_list(tests: test_register.TestRegister, args, results: db.TestResults):
 
     for p in paths:
         print(f"{formatter.tree_line(p)}", end=" ")
-        result = average_results(results.get_test_results(p, result_set, args.run_nr))
+        result = average_results(results.get_test_results(p, result_set, getattr(args, 'run_nr', None)))
         if result is None:
             print("-")
         elif result.nr_runs == 1:
@@ -182,17 +217,15 @@ def cmd_list(tests: test_register.TestRegister, args, results: db.TestResults):
 # -----------------------------------------
 # 'log' command
 
-
-def cmd_log(tests: test_register.TestRegister, args, results: db.TestResults):
+def cmd_log(args, results):
     result_set = get_result_set(args)
-    filter = build_filter(args)
-    paths = sorted(tests.paths(results, result_set, filter))
+    paths = get_matching_paths(results, result_set, args)
 
     if len(paths) == 0:
         print("No matching tests found.")
 
     for p in paths:
-        res_list = results.get_test_results(p, result_set, args.run_nr)
+        res_list = results.get_test_results(p, result_set, getattr(args, 'run_nr', None))
         if len(res_list) == 0:
             print(f"*** NO LOG FOR {p}")
             continue
@@ -213,7 +246,7 @@ def cmd_log(tests: test_register.TestRegister, args, results: db.TestResults):
 # -----------------------------------------
 # 'compare' command
 
-def can_compare_times(old: Optional[AvgResult], new: Optional[AvgResult]) -> bool:
+def can_compare_times(old, new):
     if old is None or new is None:
         return False
     if old.nr_pass != 0 and new.nr_pass != 0:
@@ -221,13 +254,12 @@ def can_compare_times(old: Optional[AvgResult], new: Optional[AvgResult]) -> boo
     return old.pass_fail and old.pass_fail == new.pass_fail
 
 
-def cmd_compare(tests: test_register.TestRegister, args, results: db.TestResults):
+def cmd_compare(args, results):
     if not args.old_result_set:
         print("Missing old result set.", file=sys.stderr)
         sys.exit(1)
     new_set = get_result_set(args)
-    filter = build_filter(args)
-    paths = sorted(tests.paths(results, new_set, filter))
+    paths = get_matching_paths(results, new_set, args)
     formatter = TreeFormatter()
 
     if len(paths) == 0:
@@ -261,10 +293,9 @@ def cmd_compare(tests: test_register.TestRegister, args, results: db.TestResults
 # -----------------------------------------
 # 'list-runs' command
 
-def cmd_list_runs(tests: test_register.TestRegister, args, results: db.TestResults):
+def cmd_list_runs(args, results):
     result_set = get_result_set(args)
-    filter = build_filter(args)
-    paths = sorted(tests.paths(results, result_set, filter))
+    paths = get_matching_paths(results, result_set, args)
     formatter = TreeFormatter()
 
     if len(paths) == 0:
@@ -287,134 +318,69 @@ def cmd_list_runs(tests: test_register.TestRegister, args, results: db.TestResul
 
 
 # -----------------------------------------
-# 'run' command
+# 'run' command — wraps pytest
 
-test_dep_path = "./test_dependencies.toml"
+def cmd_run(args, results):
+    pytest_args = ["pytest"]
 
+    if args.result_set:
+        pytest_args.extend(["--result-set", args.result_set])
+    elif os.environ.get("DMTEST_RESULT_SET"):
+        pass  # pytest conftest reads DMTEST_RESULT_SET itself
 
-# Used to implement the --log switch
-class StringIOWithStderr(io.StringIO):
-    def write(self, s):
-        # Write to StringIO buffer
-        super().write(s)
+    pytest_args.extend(args.pytest_args)
 
-        # Also write to stdout
-        sys.stderr.write(s)
+    try:
+        result = subprocess.run(pytest_args)
+        sys.exit(result.returncode)
+    except FileNotFoundError:
+        print("Error: pytest not found. Install with: pip install pytest", file=sys.stderr)
+        sys.exit(1)
 
-
-def cmd_run(tests: test_register.TestRegister, args, results: db.TestResults):
-
-    exit_code = 0
-
-    test_deps = dep.read_test_deps(test_dep_path)
-
-    result_set = get_result_set(args)
-
-    if args.nr_runs < 1:
-        print("--nr-runs must be at least 1")
-        return
-
-    # select tests
-    filter = build_filter(args)
-    paths = sorted(tests.paths(results, result_set, filter))
-
-    if len(paths) == 0:
-        print("No matching tests found.")
-
-    # Set up the logging
-    if args.log:
-        buffer = StringIOWithStderr()
-    else:
-        buffer = io.StringIO()
-
-    log.basicConfig(
-        level=log.INFO,
-        format="%(asctime)s %(levelname)s %(message)s",
-        stream=buffer,
-    )
-
-    for run_nr in range(args.nr_runs):
-        formatter = TreeFormatter()
-        if args.nr_runs > 1:
-            print(f"*** Run: {run_nr} ***")
-        for p in paths:
-            buffer.seek(0)
-            buffer.truncate()
-
-            print(f"{formatter.tree_line(p)}", end=" ", flush=True)
-            log.info(f"Running '{p}'")
-
-            fix = dmtest.fixture.Fixture()
-            passed = True
-            missing_dep = None
-            start = time.time()
-            try:
-                with dep.dep_tracker() as tracker:
-                    old_deps = test_deps.get_deps(p)
-                    tests.check_deps(old_deps)
-                    tests.run(p, fix)
-                    exes = tracker.executables
-                    targets = tracker.targets
-                    test_deps.set_deps(p, exes, targets)
-
-            except test_register.MissingTestDep as e:
-                missing_dep = e
-
-            except Exception as e:
-                passed = False
-                exit_code = 1
-                if bool(os.getenv("DMTEST_PY_VERBOSE_TB", False)):
-                    log.error(f"Exception caught: \n{traceback.format_exc()}\n")
-                else:
-                    log.error(f"Exception caught: {e}")
-                while e.__cause__ or e.__context__:
-                    if e.__cause__:
-                        e = e.__cause__
-                    else:
-                        e = e.__context__
-                    log.error(f"Triggered while handling Exception: {e}")
-            elapsed = time.time() - start
-
-            dmesg_log = get_dmesg_log(start)
-            if "BUG" in dmesg_log:
-                log.error("BUG in kernel log, see dmesg for more info")
-                passed = False
-                exit_code = 2
-
-            pass_str = None
-            if missing_dep:
-                log.info(f"Missing dependency: {missing_dep}")
-                print(f"MISSING_DEP [{missing_dep}]")
-                pass_str = "MISSING_DEP"
-            elif passed:
-                print(f"PASS [{elapsed:.2f}s]")
-                pass_str = "PASS"
-            else:
-                print("FAIL")
-                pass_str = "FAIL"
-
-            test_log = buffer.getvalue()
-            result = db.TestResult(p, pass_str, test_log, dmesg_log, result_set, elapsed, run_nr)
-            results.insert_test_result(result, with_delete=(run_nr == 0))
-
-    dep.write_test_deps(test_dep_path, test_deps)
-    os._exit(exit_code)
 
 # -----------------------------------------
 # 'health' command
-
 
 def which(executable):
     exe_path = shutil.which(executable)
     return exe_path if exe_path else "-"
 
 
-def cmd_health(tests: test_register.TestRegister, args, results):
+def has_target(target):
+    targets_to_kmodules = {
+        "thin-pool": "dm_thin_pool",
+        "thin": "dm_thin_pool",
+        "cache": "dm_cache",
+        "linear": "device_mapper",
+        "bufio_test": "dm_bufio_test",
+        "vdo": "dm_vdo",
+    }
+    stdout = subprocess.run(
+        ["dmsetup", "targets"],
+        stdout=subprocess.PIPE, stderr=subprocess.PIPE,
+        universal_newlines=True,
+    ).stdout
+    if target in stdout:
+        return True
+    try:
+        kmod = targets_to_kmodules[target]
+    except KeyError:
+        kmod = f"dm_{target}"
+    return subprocess.run(
+        ["modprobe", kmod],
+        stdout=subprocess.PIPE, stderr=subprocess.PIPE,
+    ).returncode == 0
+
+
+test_dep_path = "./test_dependencies.toml"
+
+
+def cmd_health(args, results):
     test_deps = dep.read_test_deps(test_dep_path)
 
-    print("Kernel Repo:\n")
     repo = os.getenv("DMTEST_KERNEL_SOURCE", "linux")
-    found = "present" if test_register.has_repo(repo) else "missing"
+    found = "present" if os.path.isdir(os.path.join(repo, ".git")) else "missing"
+    print("Kernel Repo:\n")
     print(f"{repo.ljust(40,'.')} {found}\n\n")
 
     print("Executables:\n")
@@ -426,13 +392,12 @@ def cmd_health(tests: test_register.TestRegister, args, results):
     print("Targets:\n")
     targets = test_deps.get_all_targets()
     for t in targets:
-        found = "present" if test_register.has_target(t) else "missing"
+        found = "present" if has_target(t) else "missing"
         print(f"{t.ljust(40, '.')} {found}")
 
 
 # -----------------------------------------
 # Command line parser
-
 
 def arg_filter(p):
     p.add_argument(
@@ -462,27 +427,6 @@ def arg_filter(p):
     )
 
 
-def build_filter(args):
-    if args.and_filters:
-        top_filter = filter.AndFilter()
-    else:
-        top_filter = filter.OrFilter()
-
-    for pat in args.rx or []:
-        top_filter.add_sub_filter(filter.RegexFilter(pat))
-
-    for ss in args.substring or []:
-        top_filter.add_sub_filter(filter.SubstringFilter(ss))
-
-    for s in args.state or []:
-        if len(s) >= 1 and s.startswith("^"):
-            top_filter.add_sub_filter(filter.NotFilter(filter.StateFilter(s[1:])))
-        else:
-            top_filter.add_sub_filter(filter.StateFilter(s))
-
-    return top_filter
-
-
 def arg_result_set(p):
     p.add_argument(
         "--result-set",
@@ -503,8 +447,9 @@ def arg_run_nr(p):
 
 def command_line_parser():
     parser = argparse.ArgumentParser(
-        prog="dmtest", description="run device-mapper tests",
-        fromfile_prefix_chars="@", epilog="Arguments starting with @ will be treaded as files containing one argument per line, and will be replaced with the arguments they contain.",
+        prog="dmtest", description="device-mapper test runner and result browser",
+        fromfile_prefix_chars="@",
+        epilog="Arguments starting with @ will be treated as files containing one argument per line.",
     )
     subparsers = parser.add_subparsers(
         title="command arguments",
@@ -512,6 +457,17 @@ def command_line_parser():
         metavar="command",
     )
 
+    # --- run (wraps pytest) ---
+    run_p = subparsers.add_parser("run", help="run tests via pytest")
+    run_p.set_defaults(func=cmd_run)
+    arg_result_set(run_p)
+    run_p.add_argument(
+        "pytest_args",
+        nargs="*",
+        help="arguments forwarded to pytest (e.g. -k 'vdo' -v)",
+    )
+
+    # --- result queries ---
     result_sets_p = subparsers.add_parser("result-sets", help="list result sets")
     result_sets_p.set_defaults(func=cmd_result_sets)
 
@@ -549,23 +505,6 @@ def command_line_parser():
         action="store_true",
     )
 
-    run_p = subparsers.add_parser("run", help="run tests")
-    run_p.set_defaults(func=cmd_run)
-    arg_filter(run_p)
-    arg_result_set(run_p)
-    run_p.add_argument(
-        "--nr-runs",
-        metavar="NR_RUNS",
-        type=int,
-        default=1,
-        help="The number of times to run the tests",
-    )
-    run_p.add_argument(
-        "--log",
-        help="Print the log to stdout",
-        action="store_true",
-    )
-
     compare_p = subparsers.add_parser("compare", help="compare two result sets")
     compare_p.set_defaults(func=cmd_compare)
     arg_filter(compare_p)
@@ -599,7 +538,6 @@ def command_line_parser():
 # -----------------------------------------
 # Main
 
-
 def main():
     parser = command_line_parser()
     args = parser.parse_args()
@@ -608,18 +546,9 @@ def main():
         parser.print_help()
         sys.exit(0)
 
-    tests = test_register.TestRegister()
-    blk_archive.register(tests)
-    blk_archive_unit.register(tests)
-    cache_register.register(tests)
-    thin_register.register(tests)
-    thin_migrate_register.register(tests)
-    bufio.register(tests)
-    vdo_register.register(tests)
-
     try:
         with db.TestResults("test_results.db") as results:
-            args.func(tests, args, results)
+            args.func(args, results)
     except BrokenPipeError:
         os._exit(0)
 
