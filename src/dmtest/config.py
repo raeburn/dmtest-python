@@ -7,6 +7,7 @@ _CONFIG_KEYS = {
     "data_dev":            ("devices", None),
     "cache_dev":           ("devices", None),
     "disable_by_id_check": ("devices", False),
+    "tags":                ("filter", None),
     "cache_policy":        ("run", "smq"),
 }
 

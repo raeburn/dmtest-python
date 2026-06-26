@@ -10,7 +10,9 @@ import dmtest.thin.register as thin_register
 import dmtest.thin_migrate.register as thin_migrate_register
 import dmtest.vdo.register as vdo_register
 import dmtest.dependency_tracker as dep
+import dmtest.config as config
 import dmtest.test_filter as filter
+import dmtest.tag_expression as tag_expr
 from dmtest.utils import get_dmesg_log
 import io
 import itertools
@@ -460,6 +462,12 @@ def arg_filter(p):
         help="Select tests that match _all_ filters",
         action="store_true",
     )
+    p.add_argument(
+        "--tags",
+        metavar="EXPRESSION",
+        type=str,
+        help="select tests matching the tag expression (e.g. '!experimental')",
+    )
 
 
 def build_filter(args):
@@ -479,6 +487,19 @@ def build_filter(args):
             top_filter.add_sub_filter(filter.NotFilter(filter.StateFilter(s[1:])))
         else:
             top_filter.add_sub_filter(filter.StateFilter(s))
+
+    # CLI --tags overrides config [filter].tags
+    tag_expression = getattr(args, "tags", None)
+    if tag_expression is None:
+        cfg = config.read_config()
+        tag_expression = cfg.get("tags")
+
+    if tag_expression:
+        matcher = tag_expr.parse_tag_expression(tag_expression)
+        combined = filter.AndFilter()
+        combined.add_sub_filter(top_filter)
+        combined.add_sub_filter(filter.TagFilter(matcher))
+        return combined
 
     return top_filter
 

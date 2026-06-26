@@ -68,3 +68,11 @@ class OrFilter(CompositeFilter):
             return any(
                 sub_filter.matches(path, test, res_list) for sub_filter in self.sub_filters
             )
+
+
+class TagFilter(TestFilter):
+    def __init__(self, matcher):
+        self._matcher = matcher
+
+    def matches(self, path, test, res_list):
+        return self._matcher.match(test.tags)
