@@ -81,10 +81,10 @@ class TestRegister:
     def paths(self, results, result_set, filt=None):
         selected = []
 
-        for t in self._tests.keys():
-            res_list = results.get_test_results(t, result_set)
-            if filt.matches(t, res_list):
-                selected.append(t)
+        for (path, t) in self._tests.items():
+            res_list = results.get_test_results(path, result_set)
+            if filt.matches(path, t, res_list):
+                selected.append(path)
 
         return selected
 
