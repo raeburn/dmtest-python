@@ -24,7 +24,6 @@ fio_config_template = """
 randrepeat=1
 ioengine=libaio
 bs=4k
-size={size}
 rw=write
 direct=1
 scramble_buffers=1
@@ -85,7 +84,7 @@ def run_fio_with_config(fio_config, raise_on_fail=True):
                 return fio_out
 
 def run_fio(dev, size, offset, verify = False, stats = True, compression = 0, randseed = 1,
-            raise_on_fail = True):
+            duration = 0, raise_on_fail = True):
     """Run fio with the specified values.
 
     On success, return the parsed statistics output if stats is
@@ -93,11 +92,14 @@ def run_fio(dev, size, offset, verify = False, stats = True, compression = 0, ra
     the stderr content.
     """
     maybe_verify = "verify_only" if verify else ""
-    fio_config = fio_config_template.format(size=size,
-                                            offset=offset,
+    fio_config = fio_config_template.format(offset=offset,
                                             compress=compression,
                                             filename=str(dev),
                                             maybe_verify=maybe_verify)
+    if size:
+        fio_config += f"\nsize={size}"
+    if duration:
+        fio_config += f"\nruntime={duration}"
     fio_stats = run_fio_with_config(fio_config, raise_on_fail = raise_on_fail)
     if stats:
         return fio_stats
