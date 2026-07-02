@@ -1,6 +1,6 @@
-["/blk-archive/rolling-snaps"]
+["/blk-stash/rolling-snaps"]
 executables = [
-    "blk-archive",
+    "blk-stash",
     "blockdev",
     "dd",
     "dmsetup",
@@ -17,9 +17,9 @@ targets = [
     "thin-pool",
 ]
 
-["/blk-archive/unit/combinations"]
+["/blk-stash/unit/combinations"]
 executables = [
-    "blk-archive",
+    "blk-stash",
     "blockdev",
     "cmp",
     "dd",
@@ -37,7 +37,7 @@ targets = [
     "thin-pool",
 ]
 
-["/blk-archive/unit/hello"]
+["/blk-stash/unit/hello"]
 executables = [
     "blockdev",
     "dd",

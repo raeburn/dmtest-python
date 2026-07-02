@@ -15,25 +15,28 @@ import dmtest.units as units
 from dmtest.fs import Xfs
 from dmtest.thin.utils import standard_pool
 
+# Environment variable to override the blk-archive/blk-stash binary name
+BLK_ARCHIVE_BIN = os.getenv("BLK_ARCHIVE_BIN", "blk-stash")
+
 
 class BlkArchive:
     def __init__(self, directory, block_size=4096):
         self.dir = os.path.abspath(directory)
-        process.run(f"blk-archive create -a {self.dir} --block-size {block_size}")
+        process.run(f"{BLK_ARCHIVE_BIN} create -a {self.dir} --block-size {block_size}")
 
     def pack(self, device_or_file):
-        stdout = process.run(f"blk-archive -j pack -a {self.dir} {device_or_file}")[1]
+        stdout = process.run(f"{BLK_ARCHIVE_BIN} pack -j -a {self.dir} {device_or_file}")[1]
         result = json.loads(stdout)
         return result["stream_id"]
 
     def unpack(self, stream, dest):
-        process.run(f"blk-archive -j unpack -a {self.dir} -s {stream} {dest}")
+        process.run(f"{BLK_ARCHIVE_BIN} unpack -j -a {self.dir} -s {stream} {dest}")
 
     def dump_stream(self, stream):
-        return process.run(f"blk-archive -j dump-stream -a {self.dir} -s {stream}")
+        return process.run(f"{BLK_ARCHIVE_BIN} dump-stream -j -a {self.dir} -s {stream}")
 
     def pack_delta(self, old, old_id, new):
-        stdout = process.run(f"blk-archive -j pack -a {self.dir} {new} --delta-stream {old_id} --delta-device {old}")[1]
+        stdout = process.run(f"{BLK_ARCHIVE_BIN} pack -j -a {self.dir} {new} --delta-stream {old_id} --delta-device {old}")[1]
         result = json.loads(stdout)
         return result["stream_id"]
 
@@ -42,7 +45,7 @@ class BlkArchive:
         if stream is None:
             stream = self.get_stream_id(dev_or_file)
         process.run(
-            f"blk-archive verify -a {self.dir} --stream {stream} {dev_or_file}"
+            f"{BLK_ARCHIVE_BIN} verify -a {self.dir} --stream {stream} {dev_or_file}"
         )
 
     def get_stream_id(self, dev_or_file):
@@ -50,7 +53,7 @@ class BlkArchive:
             name = os.path.basename(dev_or_file)
         else:
             name = os.path.basename(dev_or_file.path)
-        (code, stdout, stderr) = process.run(f"blk-archive -j list -a {self.dir}")
+        (code, stdout, stderr) = process.run(f"{BLK_ARCHIVE_BIN} list -j -a {self.dir}")
         result = json.loads(stdout)
 
         item = next((i for i in result if i["source"] == name), None)
