@@ -1,4 +1,4 @@
-toml==0.10.2
-pudb
 numpy
+pudb
 pyyaml
+tomli_w
