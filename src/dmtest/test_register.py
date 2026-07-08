@@ -6,6 +6,7 @@ import dmtest.fixture as fixture
 import dmtest.process as process
 import dmtest.dependency_tracker as dep
 
+from collections import Counter
 from typing import NamedTuple, Callable, Optional
 
 
@@ -32,37 +33,59 @@ class MissingTestDep(Exception):
 class Test(NamedTuple):
     dep_fn: Callable[[], None]
     test_fn: Callable[[fixture.Fixture], None]
+    tags: frozenset = frozenset()
+
+
+def _parse_test_entry(entry):
+    if len(entry) == 2:
+        path, callback = entry
+        return path, callback, None, None
+
+    if len(entry) == 3:
+        path, callback, tags = entry
+        return path, callback, tags, None
+
+    if len(entry) == 4:
+        path, callback, tags, dep_fn = entry
+        return path, callback, tags, dep_fn
+
+    raise ValueError(f"test entry must have 2-4 elements, got {len(entry)}")
 
 
 class TestRegister:
     def __init__(self):
         self._tests = {}
 
-    def register(self, path, callback, dep_fn=None):
+    def register(self, path, callback, tags=None, dep_fn=None):
         path = _normalise_path(path)
-        self._tests[path] = Test(dep_fn, callback)
+        if tags is not None and not isinstance(tags, list):
+            raise TypeError(f"test {path}: tags must be a list")
+        if dep_fn is not None and not callable(dep_fn):
+            raise TypeError(f"test {path}: dep_fn must be callable")
+        self._tests[path] = Test(dep_fn, callback, frozenset(tags or []))
 
-    def register_batch(self, prefix, tests, batch_dep_fn=None):
+    def register_batch(self, prefix, tests, batch_tags=None, batch_dep_fn=None):
         # ensure a trailing slash
         prefix = str(prefix)
         if not prefix.endswith("/"):
             prefix += "/"
 
-        for test in tests:
-            if len(test) == 2:
-                path, callback = test
-                dep_fn = batch_dep_fn
-            else:
-                path, callback, dep_fn = test
-            self.register(prefix + path.lstrip("/"), callback, dep_fn)
+        if batch_tags is not None and not isinstance(batch_tags, list):
+            raise TypeError(f"test {prefix}: batch_tags must be a list")
+
+        for entry in tests:
+            path, callback, tags, dep_fn = _parse_test_entry(entry)
+            merged_tags = (batch_tags or []) + (tags or [])
+            dep_fn = dep_fn or batch_dep_fn
+            self.register(prefix + path.lstrip("/"), callback, merged_tags, dep_fn)
 
     def paths(self, results, result_set, filt=None):
         selected = []
 
-        for t in self._tests.keys():
-            res_list = results.get_test_results(t, result_set)
-            if filt.matches(t, res_list):
-                selected.append(t)
+        for (path, t) in self._tests.items():
+            res_list = results.get_test_results(path, result_set)
+            if filt.matches(path, t, res_list):
+                selected.append(path)
 
         return selected
 
@@ -82,6 +105,13 @@ class TestRegister:
             t.test_fn(fix)
         else:
             raise ValueError(f"can't find test {path}")
+
+    def get_tags(self, path):
+        t = self._tests.get(path)
+        return t.tags if t else frozenset()
+
+    def count_tags(self):
+        return Counter(tag for t in self._tests.values() for tag in t.tags)
 
 
 targets_to_kmodules = {

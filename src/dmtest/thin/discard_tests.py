@@ -53,7 +53,7 @@ def t_blktrace(fix):
             trace = bt.BlkTrace([thin.path])
             with trace:
                 utils.wipe_device(thin)
-    tree = read_metadata(fix.cfg["metadata_dev"])
+    tree = read_metadata(fix.cfg("metadata_dev"))
 
     print(f"{tree.attrib}")
 

@@ -1,3 +1,4 @@
+[devices]
 metadata_dev = '/dev/vda'
 data_dev = '/dev/vdb'
 disable_by_id_check = true
@@ -8,6 +9,12 @@ disable_by_id_check = true
 #
 # cache_dev = '/dev/vdc'
 
+[filter]
+# Default tags filter
+#
+tags = '!experimental'
+
+[run]
 # Optional cache policy name to override the default in dm-cache tests.
 # If specified, all test devices use this policy instead of the default smq policy.
 #

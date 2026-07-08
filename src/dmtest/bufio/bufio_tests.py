@@ -292,12 +292,12 @@ def bufio_tester(data_dev, **opts):
 
 
 def t_create(fix):
-    with bufio_tester(fix.cfg["data_dev"]):
+    with bufio_tester(fix.cfg("data_dev")):
         pass
 
 
 def t_empty_program(fix):
-    with bufio_tester(fix.cfg["data_dev"]) as tester:
+    with bufio_tester(fix.cfg("data_dev")) as tester:
         with tester.program():
             pass
 
@@ -318,14 +318,14 @@ def t_new_buf(fix):
     nr_threads = 16
     nr_gets = 1024
 
-    with bufio_tester(fix.cfg["data_dev"]) as tester:
+    with bufio_tester(fix.cfg("data_dev")) as tester:
         for t in range(nr_threads):
             with tester.program() as p:
                 do_new_buf(p, t * nr_gets)
 
 
 def t_stamper(fix):
-    with bufio_tester(fix.cfg["data_dev"]) as tester:
+    with bufio_tester(fix.cfg("data_dev")) as tester:
         with tester.program() as p:
             block = p.alloc_reg()
             buf = p.alloc_reg()
@@ -386,14 +386,14 @@ def t_many_stampers(fix):
     nr_threads = 16
     nr_gets = 1024
 
-    with bufio_tester(fix.cfg["data_dev"]) as tester:
+    with bufio_tester(fix.cfg("data_dev")) as tester:
         for t in range(nr_threads):
             with tester.program() as p:
                 do_stamper(p, t * nr_gets)
 
 
 def t_writeback_nothing(fix):
-    data_dev = fix.cfg["data_dev"]
+    data_dev = fix.cfg("data_dev")
     nr_blocks = units.meg(512) // units.kilo(4)
 
     with bufio_tester(data_dev) as tester:
@@ -417,7 +417,7 @@ def t_writeback_nothing(fix):
 
 
 def do_writes_hit_disk(fix, write_method):
-    data_dev = fix.cfg["data_dev"]
+    data_dev = fix.cfg("data_dev")
     nr_blocks = units.meg(128) // units.kilo(4)
     pattern_base = random.randint(0, 10240)
 
@@ -477,7 +477,7 @@ def t_writes_hit_disk_async(fix):
 
 
 def t_writeback_many(fix):
-    data_dev = fix.cfg["data_dev"]
+    data_dev = fix.cfg("data_dev")
     nr_blocks = units.gig(8) // units.kilo(4)
 
     with bufio_tester(data_dev) as tester:
@@ -510,7 +510,7 @@ def t_hotspots(fix):
 
     big_region_size = units.gig(1) // units.kilo(4)
 
-    with bufio_tester(fix.cfg["data_dev"]) as tester:
+    with bufio_tester(fix.cfg("data_dev")) as tester:
         # hotspot programs
         for b, e in regions:
             with tester.program() as p:
@@ -545,7 +545,7 @@ def t_hotspots2(fix):
 
     big_region_size = units.gig(1) // units.kilo(4)
 
-    with bufio_tester(fix.cfg["data_dev"]) as tester:
+    with bufio_tester(fix.cfg("data_dev")) as tester:
         # hotspot programs
         for b, e in regions:
             with tester.program() as p:
@@ -594,7 +594,7 @@ def t_multiple_caches(fix):
     nr_blocks = volume_size // units.kilo(4)
 
     vm = tvm.VM()
-    vm.add_allocation_volume(fix.cfg["data_dev"])
+    vm.add_allocation_volume(fix.cfg("data_dev"))
 
     for i in range(nr_caches):
         vm.add_volume(tvm.LinearVolume(volume_name(i), volume_size))
@@ -616,7 +616,7 @@ def t_multiple_caches(fix):
 
 # Checks that buffers that haven't been used for a while get evicted.
 def t_evict_old(fix):
-    data_dev = fix.cfg["data_dev"]
+    data_dev = fix.cfg("data_dev")
     nr_blocks = units.gig(1) // units.kilo(4)
     data_size = utils.dev_size(data_dev)
     t = table.Table(targets.BufioTestTarget(data_size, data_dev))

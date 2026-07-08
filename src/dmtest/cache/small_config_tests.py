@@ -6,11 +6,10 @@ from dmtest.cache_stack import ManagedCacheStack, CachePolicy
 #----------------------------------------------------------------
 
 def t_small_config(fix):
-    cfg = fix.cfg
-    fast_dev = cfg["metadata_dev"]
-    origin_dev = cfg["data_dev"]
-    cache_dev = cfg.get("cache_dev", None)
-    policy_name = cfg.get("cache_policy", "smq")
+    fast_dev = fix.cfg("metadata_dev")
+    origin_dev = fix.cfg("data_dev")
+    cache_dev = fix.cfg("cache_dev")
+    policy_name = fix.cfg("cache_policy")
 
     stack = ManagedCacheStack(
         fast_dev,

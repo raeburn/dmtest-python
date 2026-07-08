@@ -43,7 +43,7 @@ class ThinMigrate:
 
 
 def t_migrate_thin_to_thin(fix):
-    data_dev = fix.cfg["data_dev"]
+    data_dev = fix.cfg("data_dev")
     thin_size = min(units.gig(1), utils.dev_size(data_dev) // 2)
 
     with standard_pool(fix, block_size = 128, zero = True) as src_pool:
@@ -69,7 +69,7 @@ def t_migrate_thin_to_thin(fix):
 
 
 def t_migrate_thin_to_file(fix):
-    data_dev = fix.cfg["data_dev"]
+    data_dev = fix.cfg("data_dev")
     thin_size = min(units.gig(1), utils.dev_size(data_dev) // 2)
 
     with standard_pool(fix, block_size = 128, zero = True) as src_pool:
@@ -92,7 +92,7 @@ def t_migrate_thin_to_file(fix):
 def t_large_block_size(fix):
     thin_size = units.gig(1)
 
-    data_dev = fix.cfg["data_dev"]
+    data_dev = fix.cfg("data_dev")
     if utils.dev_size(data_dev) < 2 * thin_size:
         raise Exception("insufficient pool size for running the test")
 

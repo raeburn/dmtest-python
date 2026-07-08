@@ -3,10 +3,9 @@ import dmtest.utils as utils
 
 
 def standard_stack(fix, **opts):
-    cfg = fix.cfg
     if "data_size" not in opts:
-        opts["data_size"] = utils.dev_size(cfg["data_dev"])
-    return ps.PoolStack(cfg["data_dev"], cfg["metadata_dev"], **opts)
+        opts["data_size"] = utils.dev_size(fix.cfg("data_dev"))
+    return ps.PoolStack(fix.cfg("data_dev"), fix.cfg("metadata_dev"), **opts)
 
 
 def standard_pool(fix, **opts):

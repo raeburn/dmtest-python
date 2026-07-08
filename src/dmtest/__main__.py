@@ -10,7 +10,9 @@ import dmtest.thin.register as thin_register
 import dmtest.thin_migrate.register as thin_migrate_register
 import dmtest.vdo.register as vdo_register
 import dmtest.dependency_tracker as dep
+import dmtest.config as config
 import dmtest.test_filter as filter
+import dmtest.tag_expression as tag_expr
 from dmtest.utils import get_dmesg_log
 import io
 import itertools
@@ -25,9 +27,10 @@ from typing import Optional, NamedTuple, Sequence
 
 
 class TreeFormatter:
+    INDENT = "  "
+
     def __init__(self):
         self._previous = []
-        self._indent = "  "
 
     def tree_line(self, path):
         components = [c for c in path.split("/") if c.strip()]
@@ -40,10 +43,13 @@ class TreeFormatter:
                 break
 
             if old != new:
-                strs.append(f"{self._indent * depth}{new}".ljust(50, " ") + "\n")
+                strs.append(f"{self.INDENT * depth}{new}".ljust(50, " ") + "\n")
             depth += 1
         self._previous = components
         return "".join(strs)[:-1]
+
+    def depth(self):
+        return len(self._previous)
 
 
 # -----------------------------------------
@@ -177,6 +183,11 @@ def cmd_list(tests: test_register.TestRegister, args, results: db.TestResults):
             print(f"{result.nr_runs}/{result.nr_runs} {result.pass_fail} [{result.duration:.2f}s]")
         else:
             print(f"{result.nr_pass}/{result.nr_runs} PASS [{result.duration:.2f}s]")
+        if args.show_tags:
+            tags = tests.get_tags(p)
+            if tags:
+                indent = formatter.INDENT * formatter.depth()
+                print(f"{indent}[{', '.join(sorted(tags))}]")
 
 
 # -----------------------------------------
@@ -431,6 +442,19 @@ def cmd_health(tests: test_register.TestRegister, args, results):
 
 
 # -----------------------------------------
+# 'list-tags' command
+
+
+def cmd_list_tags(tests: test_register.TestRegister, args, results: db.TestResults):
+    tags = tests.count_tags()
+    if not tags:
+        print("No tags defined.")
+        return
+    for tag, count in sorted(tags.items()):
+        print(f"  {tag.ljust(20)} {count} tests")
+
+
+# -----------------------------------------
 # Command line parser
 
 
@@ -460,6 +484,12 @@ def arg_filter(p):
         help="Select tests that match _all_ filters",
         action="store_true",
     )
+    p.add_argument(
+        "--tags",
+        metavar="EXPRESSION",
+        type=str,
+        help="select tests matching the tag expression (e.g. '!experimental')",
+    )
 
 
 def build_filter(args):
@@ -479,6 +509,19 @@ def build_filter(args):
             top_filter.add_sub_filter(filter.NotFilter(filter.StateFilter(s[1:])))
         else:
             top_filter.add_sub_filter(filter.StateFilter(s))
+
+    # CLI --tags overrides config [filter].tags
+    tag_expression = getattr(args, "tags", None)
+    if tag_expression is None:
+        cfg = config.read_config()
+        tag_expression = cfg.get("tags")
+
+    if tag_expression:
+        matcher = tag_expr.parse_tag_expression(tag_expression)
+        combined = filter.AndFilter()
+        combined.add_sub_filter(top_filter)
+        combined.add_sub_filter(filter.TagFilter(matcher))
+        return combined
 
     return top_filter
 
@@ -537,6 +580,12 @@ def command_line_parser():
     arg_filter(list_p)
     arg_result_set(list_p)
     arg_run_nr(list_p)
+    list_p.add_argument(
+        "-T",
+        help="Show tags alongside test names",
+        action="store_true",
+        dest="show_tags",
+    )
 
     log_p = subparsers.add_parser("log", help="list test logs")
     log_p.set_defaults(func=cmd_log)
@@ -587,6 +636,9 @@ def command_line_parser():
         type=str,
         help="only show runs whose result matches the given state",
     )
+
+    list_tags_p = subparsers.add_parser("list-tags", help="list all tags with test counts")
+    list_tags_p.set_defaults(func=cmd_list_tags)
 
     health_p = subparsers.add_parser(
         "health", help="check required tools are installed"
