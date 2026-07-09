@@ -9,7 +9,7 @@ class VDOStack:
     def __init__(self, data_dev, **opts):
         self._data_dev = data_dev
         self._physical_size = opts.pop("physical_size", utils.dev_size(data_dev) * 512)
-        self._mode = opts.pop("512_mode", 4096)
+        self._mode = opts.pop("block_size", 4096)
         self._block_map_cache = opts.pop("block_map_cache", 128 * 1024 * 1024)
         self._block_map_period = opts.pop("block_map_period", 16380)
         self._format = opts.pop("format", True)

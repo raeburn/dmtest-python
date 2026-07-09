@@ -1035,3 +1035,39 @@ executables = [
 targets = [
     "vdo",
 ]
+
+["/vdo/recovery/512_recovery"]
+executables = [
+    "blockdev",
+    "dmsetup",
+    "vdoformat",
+]
+targets = [
+    "error",
+    "linear",
+    "vdo",
+]
+
+["/vdo/recovery/double_recovery"]
+executables = [
+    "blockdev",
+    "dmsetup",
+    "vdoformat",
+]
+targets = [
+    "error",
+    "linear",
+    "vdo",
+]
+
+["/vdo/recovery/quick_recovery"]
+executables = [
+    "blockdev",
+    "dmsetup",
+    "vdoformat",
+]
+targets = [
+    "error",
+    "linear",
+    "vdo",
+]
