@@ -1,3 +1,8 @@
+"""VDO filling and space management test.
+
+Tests VDO device filling, deduplication of data on a full device, and space
+reclamation via discard operations. Verifies free space tracking at each step.
+"""
 from dmtest.assertions import assert_equal
 import dmtest.device_mapper.dev as dmdev
 from dmtest.gendatablocks import make_block_range
@@ -71,7 +76,6 @@ def t_full(fix):
             # we verify.
             range5.trim()
             # Writing new data should fail
-            process.run("udevadm settle")
             gave_error = False
             try:
                 range5.write(tag="tag3", fsync=True)
@@ -89,7 +93,6 @@ def t_full(fix):
             # The write failed, so range5 will not have updated its
             # idea of the data we should find there; it still expects
             # zero blocks.
-            process.run("udevadm settle")
             range1.verify()
             range2.verify()
             range3.verify()

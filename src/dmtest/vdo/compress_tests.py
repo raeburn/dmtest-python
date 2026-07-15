@@ -1,3 +1,9 @@
+"""VDO compression tests.
+
+Tests VDO's compression functionality including writing compressible data,
+verifying compression ratios, and ensuring deduplication works correctly
+against compressed blocks.
+"""
 from dmtest.assertions import assert_equal, assert_near
 from dmtest.gendatablocks import make_block_range
 from dmtest.vdo.stats import vdo_stats
@@ -30,7 +36,6 @@ def t_compress(fix):
         range2 = make_block_range(path=vdo.path, block_size=BLOCK_SIZE,
                                   block_count=size_in_blocks,
                                   offset=size_in_blocks)
-        process.run("udevadm settle")
         stats = vdo_stats(vdo)
         assert_equal(stats['dataBlocksUsed'], 0, 'data blocks used (init)')
         assert_equal(stats['hashLock']['dedupeAdviceValid'], 0,
@@ -95,9 +100,4 @@ def t_compress(fix):
                      'data blocks used (discard)')
 
 def register(tests):
-    tests.register_batch(
-        "/vdo/compress/",
-        [
-            ("compress", t_compress),
-        ],
-    )
+    tests.register("/vdo/compress/compress", t_compress)

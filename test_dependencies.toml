@@ -930,7 +930,6 @@ executables = [
     "blkdiscard",
     "blockdev",
     "dmsetup",
-    "udevadm",
     "vdoformat",
 ]
 targets = [
@@ -951,7 +950,6 @@ targets = [
 executables = [
     "blockdev",
     "dmsetup",
-    "udevadm",
     "vdoformat",
 ]
 targets = [
@@ -962,7 +960,6 @@ targets = [
 executables = [
     "blockdev",
     "dmsetup",
-    "udevadm",
     "vdoformat",
 ]
 targets = [
@@ -973,7 +970,6 @@ targets = [
 executables = [
     "blockdev",
     "dmsetup",
-    "udevadm",
     "vdoformat",
 ]
 targets = [
@@ -984,7 +980,6 @@ targets = [
 executables = [
     "blockdev",
     "dmsetup",
-    "udevadm",
     "vdoformat",
 ]
 targets = [
@@ -1007,7 +1002,6 @@ executables = [
     "blockdev",
     "dmsetup",
     "fio",
-    "udevadm",
     "vdoformat",
 ]
 targets = [
