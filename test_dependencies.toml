@@ -1473,6 +1473,52 @@ targets = [
     "vdo",
 ]
 
+["/vdo/grow-logical/auto-grow-logical"]
+executables = [
+    "blockdev",
+    "dmsetup",
+    "vdoformat",
+]
+targets = [
+    "vdo",
+]
+
+["/vdo/grow-logical/basic"]
+executables = [
+    "blockdev",
+    "dmsetup",
+    "vdoformat",
+]
+targets = [
+    "vdo",
+]
+
+["/vdo/grow-logical/filesystem"]
+executables = [
+    "blockdev",
+    "dmsetup",
+    "echo",
+    "fsck.ext4",
+    "mkfs.ext4",
+    "mount",
+    "resize2fs",
+    "umount",
+    "vdoformat",
+]
+targets = [
+    "vdo",
+]
+
+["/vdo/grow-logical/minimum-growth"]
+executables = [
+    "blockdev",
+    "dmsetup",
+    "vdoformat",
+]
+targets = [
+    "vdo",
+]
+
 ["/vdo/in-flight-dedupe-and-compress/test"]
 executables = [
     "blockdev",
