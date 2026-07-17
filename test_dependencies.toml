@@ -1519,6 +1519,56 @@ targets = [
     "vdo",
 ]
 
+["/vdo/grow-physical/basic"]
+executables = [
+    "blockdev",
+    "dmsetup",
+    "vdoformat",
+]
+targets = [
+    "linear",
+    "vdo",
+]
+
+["/vdo/grow-physical/offline"]
+executables = [
+    "blockdev",
+    "dmsetup",
+    "vdoformat",
+]
+targets = [
+    "linear",
+    "vdo",
+]
+
+["/vdo/grow-physical/too-small"]
+executables = [
+    "blockdev",
+    "dmsetup",
+    "vdoformat",
+]
+targets = [
+    "linear",
+    "vdo",
+]
+
+["/vdo/grow-physical/use-new"]
+executables = [
+    "blockdev",
+    "dmsetup",
+    "echo",
+    "fsck.ext4",
+    "mkfs.ext4",
+    "mount",
+    "sync",
+    "umount",
+    "vdoformat",
+]
+targets = [
+    "linear",
+    "vdo",
+]
+
 ["/vdo/in-flight-dedupe-and-compress/test"]
 executables = [
     "blockdev",
