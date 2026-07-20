@@ -1584,6 +1584,30 @@ targets = [
     "vdo",
 ]
 
+["/vdo/sysfs/basic"]
+executables = [
+    "blockdev",
+    "cat",
+    "dmsetup",
+    "echo",
+    "vdoformat",
+]
+targets = [
+    "vdo",
+]
+
+["/vdo/sysfs/length-check"]
+executables = [
+    "blockdev",
+    "cat",
+    "dmsetup",
+    "echo",
+    "vdoformat",
+]
+targets = [
+    "vdo",
+]
+
 ["/vdo/recovery/512_recovery"]
 executables = [
     "blockdev",
