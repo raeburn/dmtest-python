@@ -1093,6 +1093,18 @@ targets = [
     "vdo",
 ]
 
+["/vdo/device-swap/device-switch"]
+executables = [
+    "blockdev",
+    "dd",
+    "dmsetup",
+    "vdoformat",
+]
+targets = [
+    "linear",
+    "vdo",
+]
+
 ["/vdo/direct/direct-01"]
 executables = [
     "blockdev",
@@ -1211,6 +1223,58 @@ executables = [
     "rm",
     "sync",
     "vdoformat",
+]
+targets = [
+    "vdo",
+]
+
+["/vdo/dmsetup/basic-ops"]
+executables = [
+    "blockdev",
+    "dmsetup",
+    "vdoformat",
+]
+targets = [
+    "vdo",
+]
+
+["/vdo/dmsetup/config-non-default-slab"]
+executables = [
+    "blockdev",
+    "dmsetup",
+    "vdoformat",
+]
+targets = [
+    "vdo",
+]
+
+["/vdo/dmsetup/rename"]
+executables = [
+    "blockdev",
+    "dmsetup",
+    "vdoformat",
+]
+targets = [
+    "vdo",
+]
+
+["/vdo/dual/discard-during-write"]
+executables = [
+    "blkdiscard",
+    "blockdev",
+    "dmsetup",
+    "echo",
+    "fsck.ext4",
+    "lvcreate",
+    "lvremove",
+    "mkfs.ext4",
+    "mount",
+    "sync",
+    "umount",
+    "vdoformat",
+    "vgcreate",
+    "vgremove",
+    "vgs",
 ]
 targets = [
     "vdo",
@@ -1419,6 +1483,17 @@ executables = [
     "vdoformat",
 ]
 targets = [
+    "vdo",
+]
+
+["/vdo/instance/multiple-instances"]
+executables = [
+    "blockdev",
+    "dmsetup",
+    "vdoformat",
+]
+targets = [
+    "linear",
     "vdo",
 ]
 

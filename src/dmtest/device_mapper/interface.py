@@ -68,7 +68,8 @@ def status(name, *args):
 
 
 def table(name):
-    run(f"dmsetup table {name}")
+    (_, stdout, _) = run(f"dmsetup table {name}")
+    return stdout
 
 
 def info(name):
@@ -86,3 +87,7 @@ def parse_event_nr(txt):
 def wait(name, event_nr):
     (_, stdout, _) = run(f"dmsetup wait -v {name} {event_nr}")
     return parse_event_nr(stdout)
+
+
+def rename(old_name, new_name):
+    run(f"dmsetup rename {old_name} {new_name}")
