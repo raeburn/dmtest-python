@@ -1,6 +1,7 @@
 import dmtest.vdo.basic_01_tests as vdo_basic_01
 import dmtest.vdo.basic_fs_dedupe_tests as vdo_basic_fs_dedupe
 import dmtest.vdo.collide_tests as vdo_collide
+import dmtest.vdo.compress_dedupe_flags_tests as vdo_compress_dedupe_flags
 import dmtest.vdo.compress_tests as vdo_compress
 import dmtest.vdo.create_03_tests as vdo_create_03
 import dmtest.vdo.creation_tests as vdo_creation
@@ -22,7 +23,9 @@ import dmtest.vdo.gen_data_03_tests as vdo_gen_data_03
 import dmtest.vdo.gen_data_04_tests as vdo_gen_data_04
 import dmtest.vdo.in_flight_dedupe_and_compress_tests as vdo_in_flight_dedupe_and_compress
 import dmtest.vdo.load_failure_tests as vdo_load_failure
+import dmtest.vdo.major_minor_tests as vdo_major_minor
 import dmtest.vdo.recovery_tests as vdo_recovery
+import dmtest.vdo.slab_count_tests as vdo_slab_count
 import dmtest.vdo.uds_timeout_tests as vdo_uds_timeout
 import dmtest.vdo.zero_tests as vdo_zero
 
@@ -41,6 +44,7 @@ def register(tests):
     vdo_direct_06.register(tests)
     vdo_discard_512.register(tests)
     vdo_compress.register(tests)
+    vdo_compress_dedupe_flags.register(tests)
     vdo_full.register(tests)
     vdo_full_02.register(tests)
     vdo_full_03.register(tests)
@@ -51,6 +55,8 @@ def register(tests):
     vdo_gen_data_04.register(tests)
     vdo_in_flight_dedupe_and_compress.register(tests)
     vdo_load_failure.register(tests)
+    vdo_major_minor.register(tests)
     vdo_recovery.register(tests)
+    vdo_slab_count.register(tests)
     vdo_uds_timeout.register(tests)
     vdo_zero.register(tests)

@@ -992,6 +992,26 @@ targets = [
     "vdo",
 ]
 
+["/vdo/compress-dedupe-flags/toggle-via-message"]
+executables = [
+    "blockdev",
+    "dmsetup",
+    "vdoformat",
+]
+targets = [
+    "vdo",
+]
+
+["/vdo/compress-dedupe-flags/toggle-via-table-reload"]
+executables = [
+    "blockdev",
+    "dmsetup",
+    "vdoformat",
+]
+targets = [
+    "vdo",
+]
+
 ["/vdo/compress/compress"]
 executables = [
     "blkdiscard",
@@ -1409,6 +1429,7 @@ executables = [
     "vdoformat",
 ]
 targets = [
+    "linear",
     "vdo",
 ]
 
@@ -1420,6 +1441,71 @@ executables = [
     "vdoformat",
 ]
 targets = [
+    "vdo",
+]
+
+["/vdo/load_failure/mixed_zone_counts"]
+executables = [
+    "blockdev",
+    "dmsetup",
+    "vdoformat",
+]
+targets = [
+    "vdo",
+]
+
+["/vdo/major-minor/basic"]
+executables = [
+    "blockdev",
+    "dmsetup",
+    "vdoformat",
+]
+targets = [
+    "linear",
+    "vdo",
+]
+
+["/vdo/slab-count/small-small"]
+executables = [
+    "blockdev",
+    "dmsetup",
+    "vdoformat",
+]
+targets = [
+    "linear",
+    "vdo",
+]
+
+["/vdo/slab-count/tiny-multi"]
+executables = [
+    "blockdev",
+    "dmsetup",
+    "vdoformat",
+]
+targets = [
+    "linear",
+    "vdo",
+]
+
+["/vdo/slab-count/tiny-small"]
+executables = [
+    "blockdev",
+    "dmsetup",
+    "vdoformat",
+]
+targets = [
+    "linear",
+    "vdo",
+]
+
+["/vdo/slab-count/tiny-tiny"]
+executables = [
+    "blockdev",
+    "dmsetup",
+    "vdoformat",
+]
+targets = [
+    "linear",
     "vdo",
 ]
 
