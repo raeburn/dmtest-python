@@ -1744,6 +1744,28 @@ targets = [
     "vdo",
 ]
 
+["/vdo/thread_config/single_thread_mode"]
+executables = [
+    "blockdev",
+    "dmsetup",
+    "ps",
+    "vdoformat",
+]
+targets = [
+    "vdo",
+]
+
+["/vdo/thread_config/thread_counts"]
+executables = [
+    "blockdev",
+    "dmsetup",
+    "ps",
+    "vdoformat",
+]
+targets = [
+    "vdo",
+]
+
 ["/vdo/recovery/512_recovery"]
 executables = [
     "blockdev",

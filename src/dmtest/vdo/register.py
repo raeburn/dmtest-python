@@ -39,6 +39,7 @@ import dmtest.vdo.recovery_tests as vdo_recovery
 import dmtest.vdo.rename_tests as vdo_rename
 import dmtest.vdo.slab_count_tests as vdo_slab_count
 import dmtest.vdo.sysfs_tests as vdo_sysfs
+import dmtest.vdo.thread_config_tests as vdo_thread_config
 import dmtest.vdo.uds_timeout_tests as vdo_uds_timeout
 import dmtest.vdo.zero_tests as vdo_zero
 
@@ -84,5 +85,6 @@ def register(tests):
     vdo_rename.register(tests)
     vdo_slab_count.register(tests)
     vdo_sysfs.register(tests)
+    vdo_thread_config.register(tests)
     vdo_uds_timeout.register(tests)
     vdo_zero.register(tests)
